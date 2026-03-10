@@ -14,8 +14,14 @@ st.set_page_config(
 @st.cache_data
 def load_data():
     df = pd.read_csv("clean_data.csv")
-    # Fix category column: strip list brackets/quotes e.g. ['Coffee Shop'] → Coffee Shop
-    df["category"] = df["category"].astype(str).str.strip("[]'\" ")
+    # Fix category: ['Restaurant', 'Juice Bar'] → Restaurant, Juice Bar
+    df["category"] = (
+        df["category"]
+        .astype(str)
+        .str.strip("[]")
+        .str.replace("'", "", regex=False)
+        .str.strip()
+    )
     return df
 
 df = load_data()
@@ -52,7 +58,7 @@ with st.sidebar:
     )
 
     # Neighborhood filter
-    top_neighborhoods = df["neighborhoods"].value_counts().head(20).index.tolist()
+    top_neighborhoods = sorted(df["neighborhoods"].value_counts().head(50).index.tolist())
     selected_neighborhoods = st.multiselect(
         "Neighborhoods (Top 20)",
         options=top_neighborhoods,
