@@ -27,6 +27,16 @@ EDA_Project/
 
 ---
 
+## 🗺️ Geographic Data
+
+To assign each restaurant to a Riyadh neighborhood, the project uses a GeoJSON file containing Saudi Arabia's regions, cities, and district boundaries.
+
+- **Source:** [Saudi Arabia Regions, Cities and Districts — GitHub](https://github.com/homaily/Saudi-Arabia-Regions-Cities-and-Districts/tree/master)
+- **File used:** `geojson/districts.geojson`
+- **How it was used:** The district polygons were filtered to Riyadh (city_id == 3), then a spatial join (`gpd.sjoin`) was performed against restaurant coordinates to assign each venue its neighborhood name. A nearest-neighbor fallback was applied for any points that fell outside polygon boundaries.
+
+---
+
 ## 🔍 Research Questions
 
 1. What are the most common food place types in Riyadh?
