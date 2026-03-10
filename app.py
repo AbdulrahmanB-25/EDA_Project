@@ -14,6 +14,8 @@ st.set_page_config(
 @st.cache_data
 def load_data():
     df = pd.read_csv("clean_data.csv")
+    # Fix category column: strip list brackets/quotes e.g. ['Coffee Shop'] → Coffee Shop
+    df["category"] = df["category"].astype(str).str.strip("[]'\" ")
     return df
 
 df = load_data()
@@ -87,7 +89,7 @@ st.divider()
 # ── Data preview ──────────────────────────────────────────────────────────────
 with st.expander("📋 Data Preview", expanded=False):
     st.dataframe(
-        filtered[["name", "category", "rating", "price_level", "neighborhoods", "latitude", "longitude"]].head(50),
+        filtered[["name", "category", "rating", "price_level", "neighborhoods", "latitude", "longitude"]].sort_index().head(50),
         use_container_width=True
     )
     st.caption(f"Showing 50 of {len(filtered):,} filtered rows")
