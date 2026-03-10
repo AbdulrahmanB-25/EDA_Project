@@ -1,9 +1,3 @@
-import streamlit as st
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-import numpy as np
-
 # ── Page config ──────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Riyadh Restaurant Explorer",
