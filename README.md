@@ -85,11 +85,8 @@ To assign each restaurant to a Riyadh neighborhood, the project uses a GeoJSON f
 4. Run all remaining cells in order
 
 ### Streamlit Dashboard
-```bash
-pip install streamlit pandas seaborn matplotlib
-streamlit run app.py
-```
-Make sure `clean_data.csv` is in the same folder as `app.py`.
+
+🔗 **Live App:** [https://riyadh-restaurant-eda.streamlit.app/](https://riyadh-restaurant-eda.streamlit.app/)
 
 ---
 
