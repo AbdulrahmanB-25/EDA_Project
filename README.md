@@ -14,6 +14,7 @@ EDA_Project/
 ├── app.py                  # Streamlit dashboard
 ├── README.md               # This file
 └── presentation.pptx       # Final presentation slides
+└── requirements.txt        # Streamlit requirements 
 ```
 
 ---
