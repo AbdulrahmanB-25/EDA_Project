@@ -248,11 +248,9 @@ mpl.rcParams["text.usetex"]      = False
 mpl.rcParams["mathtext.default"] = "regular"
 
 def price_label(x):
-    """Return a matplotlib-safe price label — no raw $$ sequences."""
-    if x == 0:
-        return "Unspecified"
-    n = int(x)
-    return r"\$" * n   # escaped so matplotlib never parses as math
+    """Return a matplotlib-safe price label — no $ signs at all."""
+    mapping = {0: "Unspecified", 1: "Low (1)", 2: "Mid (2)", 3: "High (3)", 4: "Ultra (4)"}
+    return mapping.get(int(x), str(x))
 
 # ══════════════════════════════════════════════════════════════════════════════
 # PAGE: OVERVIEW
@@ -654,7 +652,7 @@ elif page == "ml":
         class_counts = df[df["price_level"].isin([1,2,3])]["price_level"].value_counts().sort_index()
         fig, ax = plt.subplots(figsize=(5, 3.5))
         style_ax(ax, fig)
-        bars = ax.bar(["$ Low", "$$ Mid", "$$$ High"],
+        bars = ax.bar(["Low (1)", "Mid (2)", "High (3)"],
                       class_counts.values,
                       color=["#c0152a","#c0152a","#8b0000"],
                       edgecolor='white', lw=0.5)
