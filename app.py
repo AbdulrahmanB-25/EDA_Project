@@ -2,7 +2,12 @@ import streamlit as st
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import numpy as np
+
+# Disable LaTeX math parsing so $ signs in labels are treated as plain text
+mpl.rcParams["text.usetex"] = False
+mpl.rcParams["mathtext.default"] = "regular"
 
 # ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -20,11 +25,26 @@ st.markdown("""
     html, body, [class*="css"] { font-family: 'DM Sans', sans-serif; }
     #MainMenu, footer, header { visibility: hidden; }
 
-    [data-testid="stSidebar"] {
-        background: #0f0f14;
-        border-right: 1px solid #1e1e2e;
+    [data-testid="stSidebar"] { background: #0f0f14; border-right: 1px solid #222230; }
+    [data-testid="stSidebar"] p,
+    [data-testid="stSidebar"] span,
+    [data-testid="stSidebar"] label,
+    [data-testid="stSidebar"] div { color: #c8c8d8; }
+    [data-testid="stSidebar"] .stButton button {
+        background: transparent;
+        color: #a0a0c0 !important;
+        border: 1px solid #2a2a3e;
+        border-radius: 8px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 0.88rem;
+        text-align: left;
+        transition: all 0.15s;
     }
-    [data-testid="stSidebar"] * { color: #e0e0f0 !important; }
+    [data-testid="stSidebar"] .stButton button:hover {
+        background: #1e1e2e !important;
+        color: #ffffff !important;
+        border-color: #3a3a5e;
+    }
 
     .page-header {
         font-family: 'Syne', sans-serif;
@@ -34,11 +54,7 @@ st.markdown("""
         color: #0f0f14;
         line-height: 1.1;
     }
-    .page-subtitle {
-        font-size: 1rem;
-        color: #666;
-        margin-top: 4px;
-    }
+    .page-subtitle { font-size: 1rem; color: #666; margin-top: 4px; }
 
     .kpi-card {
         background: #fff;
@@ -52,7 +68,7 @@ st.markdown("""
         font-family: 'Syne', sans-serif;
         font-size: 2rem;
         font-weight: 800;
-        color: #e63946;
+        color: #0f0f14;
         line-height: 1;
     }
     .kpi-label {
@@ -69,20 +85,20 @@ st.markdown("""
         font-size: 1.15rem;
         font-weight: 700;
         color: #0f0f14;
-        border-left: 4px solid #e63946;
+        border-left: 4px solid #c0152a;
         padding-left: 12px;
         margin: 20px 0 14px 0;
     }
 
     .insight-box {
-        background: #f8f7ff;
-        border-left: 3px solid #e63946;
+        background: #fff8f8;
+        border-left: 3px solid #c0152a;
         border-radius: 0 8px 8px 0;
         padding: 10px 14px;
         font-size: 0.83rem;
-        color: #444;
+        color: #2a2a2a;
         margin-top: 8px;
-        line-height: 1.5;
+        line-height: 1.6;
     }
 
     .model-card {
@@ -93,39 +109,23 @@ st.markdown("""
         margin-bottom: 12px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
-    .model-name {
-        font-family: 'Syne', sans-serif;
-        font-weight: 700;
-        font-size: 1rem;
-        color: #0f0f14;
-    }
-    .model-acc {
-        font-family: 'Syne', sans-serif;
-        font-size: 1.8rem;
-        font-weight: 800;
-        color: #e63946;
-    }
+    .model-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; color: #0f0f14; }
+    .model-acc  { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; color: #0f0f14; }
 
-    .badge {
-        display: inline-block;
-        padding: 3px 10px;
-        border-radius: 20px;
-        font-size: 0.72rem;
-        font-weight: 600;
-        letter-spacing: 0.04em;
-    }
-    .badge-green  { background: #e6f9f0; color: #1a7a4a; }
-    .badge-orange { background: #fff4e6; color: #b35c00; }
-    .badge-red    { background: #fde8ea; color: #c0152a; }
+    .badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:0.72rem; font-weight:600; letter-spacing:0.04em; }
+    .badge-green  { background: #d4f5e5; color: #0f5c30; }
+    .badge-orange { background: #fde8c8; color: #7a3800; }
+    .badge-red    { background: #fdd8dc; color: #7a0010; }
 
     .warn-box {
         background: #fffbea;
-        border: 1px solid #f0d060;
+        border: 1px solid #e8c840;
         border-radius: 8px;
         padding: 12px 16px;
         font-size: 0.83rem;
-        color: #6b5000;
+        color: #5a4000;
         margin-top: 12px;
+        line-height: 1.5;
     }
 
     [data-testid="metric-container"] {
@@ -141,14 +141,17 @@ st.markdown("""
         border-radius: 8px;
         padding: 8px 18px;
         font-family: 'DM Sans', sans-serif;
+        font-size: 0.88rem;
         font-weight: 500;
-        border: 1px solid #e0e0f0;
+        border: 1px solid #ddddef;
         background: #fff;
+        color: #444 !important;
     }
     .stTabs [aria-selected="true"] {
-        background: #e63946 !important;
-        color: white !important;
-        border-color: #e63946 !important;
+        background: #c0152a !important;
+        color: #ffffff !important;
+        border-color: #c0152a !important;
+        font-weight: 600 !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -204,7 +207,7 @@ with st.sidebar:
     price_options = sorted(df["price_level"].dropna().unique().tolist())
     selected_prices = st.multiselect(
         "Price Level", options=price_options, default=price_options,
-        format_func=lambda x: "$" * int(x) if x > 0 else "Unspecified"
+        format_func=lambda x: "Unspecified" if x == 0 else ("$" * int(x)).replace("$$", "$ $")
     )
 
     min_rating, max_rating = float(df["rating"].min()), float(df["rating"].max())
@@ -236,8 +239,8 @@ def style_ax(ax, fig):
         spine.set_color('#e8e8f0')
     ax.tick_params(labelsize=8)
 
-RED  = "#e63946"
-REDS = ["#e63946", "#c0152a", "#8b0000", "#4a0000", "#200000"]
+RED  = "#c0152a"
+REDS = ["#c0152a", "#a01020", "#800818", "#600010", "#400008"]
 
 # ══════════════════════════════════════════════════════════════════════════════
 # PAGE: OVERVIEW
@@ -285,7 +288,7 @@ if page == "overview":
         fig, ax = plt.subplots(figsize=(5, 3))
         style_ax(ax, fig)
         sns.barplot(y=top5.index, x=top5.values, ax=ax,
-                    palette=["#e63946","#f4716d","#f79e9c","#fbc5c5","#fde0e0"])
+                    palette=["#c0152a","#e06070","#d08090","#e0a8b0","#f0d0d5"])
         ax.set_xlabel("Count", fontsize=9); ax.set_ylabel("")
         st.pyplot(fig); plt.close()
         st.markdown('<div class="insight-box">Coffee Shop leads with ~2,050 venues — 3× more than Burger Joint in 2nd place.</div>', unsafe_allow_html=True)
@@ -297,7 +300,7 @@ if page == "overview":
         fig, ax = plt.subplots(figsize=(5, 3))
         style_ax(ax, fig)
         ax.bar(labels, price_counts.values,
-               color=["#ccc","#e63946","#c0152a","#8b0000","#4a0000"][:len(labels)],
+               color=["#ccc","#c0152a","#c0152a","#8b0000","#4a0000"][:len(labels)],
                edgecolor='white', lw=0.5)
         ax.set_xlabel("Price Level", fontsize=9); ax.set_ylabel("Count", fontsize=9)
         st.pyplot(fig); plt.close()
@@ -334,7 +337,7 @@ elif page == "eda":
             top_cat = filtered["category"].value_counts().head(10)
             fig, ax = plt.subplots(figsize=(6, 4.5))
             style_ax(ax, fig)
-            colors = [RED if i == 0 else "#f4a0a5" for i in range(len(top_cat))]
+            colors = [RED if i == 0 else "#c87880" for i in range(len(top_cat))]
             sns.barplot(y=top_cat.index, x=top_cat.values, ax=ax, palette=colors)
             ax.set_xlabel("Count", fontsize=9); ax.set_ylabel("")
             st.pyplot(fig); plt.close()
@@ -345,7 +348,7 @@ elif page == "eda":
             cat_rating = filtered.groupby("category")["rating"].mean().sort_values(ascending=False).head(10)
             fig, ax = plt.subplots(figsize=(6, 4.5))
             style_ax(ax, fig)
-            colors2 = [RED if i == 0 else "#f4a0a5" for i in range(len(cat_rating))]
+            colors2 = [RED if i == 0 else "#c87880" for i in range(len(cat_rating))]
             sns.barplot(y=cat_rating.index, x=cat_rating.values, ax=ax, palette=colors2)
             ax.set_xlabel("Average Rating", fontsize=9); ax.set_ylabel("")
             ax.set_xlim(0, 10)
@@ -359,7 +362,7 @@ elif page == "eda":
             fig, ax = plt.subplots(figsize=(6, 4))
             style_ax(ax, fig)
             sns.boxplot(x=filtered["price_level"], y=filtered["rating"], ax=ax,
-                       palette=["#ccc","#e63946","#c0152a","#8b0000","#4a0000"])
+                       palette=["#ccc","#c0152a","#c0152a","#8b0000","#4a0000"])
             ax.set_xlabel("Price Level", fontsize=9); ax.set_ylabel("Rating", fontsize=9)
             st.pyplot(fig); plt.close()
             st.markdown('<div class="insight-box">Price levels 0–2 share nearly identical medians (~7.9–8.0). Paying more does NOT yield better ratings.</div>', unsafe_allow_html=True)
@@ -422,26 +425,73 @@ elif page == "geography":
         top_neigh = filtered["neighborhoods"].value_counts().head(15)
         fig, ax = plt.subplots(figsize=(6, 5.5))
         style_ax(ax, fig)
-        colors = [RED if i < 3 else "#f4a0a5" for i in range(len(top_neigh))]
+        colors = [RED if i < 3 else "#c87880" for i in range(len(top_neigh))]
         sns.barplot(y=top_neigh.index, x=top_neigh.values, ax=ax, palette=colors)
         ax.set_xlabel("Number of Restaurants", fontsize=9); ax.set_ylabel("")
         st.pyplot(fig); plt.close()
         st.markdown('<div class="insight-box">Hiteen leads with ~365 restaurants, followed by Dhahrat Laban (~328) and Al Malqa (~315). Strong northern/northwestern concentration.</div>', unsafe_allow_html=True)
 
     with c2:
-        st.markdown('<div class="section-title">Restaurant Scatter Map</div>', unsafe_allow_html=True)
-        fig, ax = plt.subplots(figsize=(6, 5.5))
-        fig.patch.set_facecolor('#0f0f14')
-        ax.set_facecolor('#0f0f14')
-        ax.scatter(filtered["longitude"], filtered["latitude"], alpha=0.4, s=5, color=RED)
-        ax.set_aspect("equal")
-        ax.set_xlabel("Longitude", fontsize=9, color="#aaa")
-        ax.set_ylabel("Latitude", fontsize=9, color="#aaa")
-        ax.tick_params(labelsize=8, colors="#aaa")
-        for spine in ax.spines.values(): spine.set_color('#333')
-        ax.set_title("Restaurant Locations — Riyadh", color="#fff", fontsize=10, pad=10)
+        st.markdown('<div class="section-title">Restaurant Locations Map</div>', unsafe_allow_html=True)
+        try:
+            import geopandas as gpd
+            import os
+
+            geo_path = "Saudi-Arabia-Regions-Cities-and-Districts/geojson"
+            cities_path    = f"{geo_path}/cities.geojson"
+            districts_path = f"{geo_path}/districts.geojson"
+
+            if os.path.exists(cities_path) and os.path.exists(districts_path):
+                cities_gdf    = gpd.read_file(cities_path).to_crs(epsg=4326)
+                districts_gdf = gpd.read_file(districts_path).to_crs(epsg=4326)
+                riyadh        = cities_gdf[cities_gdf["name_en"] == "Riyadh"]
+
+                fig, ax = plt.subplots(figsize=(6, 5.5))
+                fig.patch.set_facecolor('#ffffff')
+
+                # City boundary fill
+                riyadh.plot(ax=ax, color="#f5f5f5", edgecolor="#222", linewidth=1.2)
+                # District borders
+                districts_gdf.plot(ax=ax, facecolor="none", edgecolor="#bbb", linewidth=0.3)
+                # Restaurant dots
+                ax.scatter(
+                    filtered["longitude"], filtered["latitude"],
+                    color=RED, s=5, alpha=0.4, zorder=3
+                )
+
+                lon_min, lon_max = filtered["longitude"].min()-0.01, filtered["longitude"].max()+0.01
+                lat_min, lat_max = filtered["latitude"].min()-0.01,  filtered["latitude"].max()+0.01
+                ax.set_xlim(lon_min, lon_max)
+                ax.set_ylim(lat_min, lat_max)
+
+                ax.set_xlabel("Longitude", fontsize=9)
+                ax.set_ylabel("Latitude", fontsize=9)
+                ax.set_title("Restaurant Locations Across Riyadh", fontsize=10, pad=10)
+                ax.tick_params(labelsize=8)
+                for spine in ax.spines.values(): spine.set_color('#e8e8f0')
+                fig.patch.set_facecolor('#ffffff')
+                ax.set_facecolor('#f9f9f9')
+
+            else:
+                # Fallback: plain scatter if GeoJSON not cloned
+                fig, ax = plt.subplots(figsize=(6, 5.5))
+                fig.patch.set_facecolor('#0f0f14')
+                ax.set_facecolor('#0f0f14')
+                ax.scatter(filtered["longitude"], filtered["latitude"], alpha=0.4, s=5, color=RED)
+                ax.set_xlabel("Longitude", fontsize=9, color="#aaa")
+                ax.set_ylabel("Latitude",  fontsize=9, color="#aaa")
+                ax.tick_params(labelsize=8, colors="#aaa")
+                for spine in ax.spines.values(): spine.set_color('#333')
+                ax.set_title("Restaurant Locations — Riyadh", color="#fff", fontsize=10)
+
+        except Exception as e:
+            fig, ax = plt.subplots(figsize=(6, 5.5))
+            ax.scatter(filtered["longitude"], filtered["latitude"], alpha=0.4, s=5, color=RED)
+            ax.set_xlabel("Longitude", fontsize=9); ax.set_ylabel("Latitude", fontsize=9)
+            ax.set_title("Restaurant Locations — Riyadh", fontsize=10)
+
         st.pyplot(fig); plt.close()
-        st.markdown('<div class="insight-box">Restaurants concentrate in central and northern Riyadh. Outer areas are noticeably sparse, reflecting population density patterns.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="insight-box">Restaurants concentrate in central and northern Riyadh. District outlines show how venue density maps onto specific neighborhoods.</div>', unsafe_allow_html=True)
 
     st.divider()
     st.markdown('<div class="section-title">Explore a Neighborhood</div>', unsafe_allow_html=True)
@@ -492,18 +542,18 @@ elif page == "price":
                 padding:28px 36px; margin-bottom:24px; display:flex; align-items:center; gap:32px;'>
         <div>
             <div style='font-family:Syne,sans-serif; font-size:3.5rem; font-weight:800;
-                        color:#e63946; line-height:1;'>{corr_val:.4f}</div>
+                        color:#ffffff; line-height:1;'>{corr_val:.4f}</div>
             <div style='color:#aaa; font-size:0.9rem; margin-top:6px;'>Correlation: price_level ↔ rating</div>
         </div>
         <div style='color:#ccc; font-size:0.95rem; max-width:500px; line-height:1.6;'>
             Near-zero correlation between price and rating. Paying more in Riyadh does
-            <strong style='color:#e63946;'>not</strong> guarantee a better dining experience.
+            <strong style='color:#ffffff;'>not</strong> guarantee a better dining experience.
             Budget and premium restaurants achieve virtually identical customer satisfaction scores.
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    price_colors = {0:"#ccc", 1:"#e63946", 2:"#c0152a", 3:"#8b0000", 4:"#4a0000"}
+    price_colors = {0:"#ccc", 1:"#c0152a", 2:"#c0152a", 3:"#8b0000", 4:"#4a0000"}
 
     c1, c2 = st.columns(2)
     with c1:
@@ -596,7 +646,7 @@ elif page == "ml":
         style_ax(ax, fig)
         bars = ax.bar(["$ Low", "$$ Mid", "$$$ High"],
                       class_counts.values,
-                      color=["#e63946","#c0152a","#8b0000"],
+                      color=["#c0152a","#c0152a","#8b0000"],
                       edgecolor='white', lw=0.5)
         for bar, val in zip(bars, class_counts.values):
             ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 20,
@@ -649,7 +699,7 @@ elif page == "ml":
                     <td style='padding:4px 0; color:#444; font-size:0.78rem;'>{cls}</td>
                     <td style='text-align:center; font-weight:600; font-size:0.78rem;'>{prec}</td>
                     <td style='text-align:center; font-weight:600; font-size:0.78rem;'>{rec}</td>
-                    <td style='text-align:center; color:#e63946; font-weight:700; font-size:0.78rem;'>{f1}</td>
+                    <td style='text-align:center; color:#0f0f14; font-weight:700; font-size:0.78rem;'>{f1}</td>
                 </tr>"""
                 for cls, prec, rec, f1 in m["details"]
             ])
@@ -685,7 +735,7 @@ elif page == "ml":
         feat_df = pd.Series(feat_vals, index=feat_names).sort_values()
         fig, ax = plt.subplots(figsize=(6, 3.5))
         style_ax(ax, fig)
-        colors_fi = [RED if v == feat_df.max() else "#f4a0a5" for v in feat_df.values]
+        colors_fi = [RED if v == feat_df.max() else "#c87880" for v in feat_df.values]
         ax.barh(feat_df.index, feat_df.values, color=colors_fi, edgecolor='white')
         ax.set_xlabel("Importance Score", fontsize=9)
         st.pyplot(fig); plt.close()
@@ -698,7 +748,7 @@ elif page == "ml":
                     padding:20px; box-shadow:0 2px 8px rgba(0,0,0,0.04); font-size:0.87rem;
                     color:#444; line-height:1.7;'>
             The EDA correlation heatmap already showed
-            <strong style='color:#e63946;'>price_level has near-zero correlation</strong>
+            <strong style='color:#0f0f14;'>price_level has near-zero correlation</strong>
             with all available features.<br><br>
             This means the features don't strongly separate price classes.
             Price in Riyadh's dining scene is likely driven by
