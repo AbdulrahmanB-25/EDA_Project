@@ -608,14 +608,28 @@ elif page == "ml":
         sec("Confusion Matrix - Random Forest")
         with mpl.rc_context({"text.usetex": False, "mathtext.default": "regular"}):
             fig, ax = plt.subplots(figsize=(5, 4)); dax(ax, fig)
+            # Use a dark-friendly colormap starting from dark background
+            from matplotlib.colors import LinearSegmentedColormap
+            dark_cmap = LinearSegmentedColormap.from_list(
+                "dark_blue", ["#0d0d12", "#1a2a4a", "#1e4080", OR], N=256
+            )
             disp = ConfusionMatrixDisplay(cm, display_labels=["Low", "Mid", "High"])
-            disp.plot(ax=ax, colorbar=False, cmap="Blues")
-            for text in ax.texts: text.set_color("white")
+            disp.plot(ax=ax, colorbar=False, cmap=dark_cmap)
+            # Style all cell text white and bold
+            for text in ax.texts:
+                text.set_color("white")
+                text.set_fontweight("bold")
+                text.set_fontsize(11)
+            ax.set_facecolor(CARD)
+            fig.patch.set_facecolor(CARD)
             ax.set_title("Confusion Matrix - Random Forest", fontsize=10, color=TX)
             ax.tick_params(colors=TX, labelsize=9)
-            ax.xaxis.label.set_color(TX); ax.yaxis.label.set_color(TX)
+            ax.xaxis.label.set_color(TX)
+            ax.yaxis.label.set_color(TX)
             for tick in ax.get_xticklabels() + ax.get_yticklabels():
                 tick.set_color(TX)
+            for sp in ax.spines.values():
+                sp.set_color(GRID)
         st.image(fig_to_img(fig)); plt.close(fig)
         ins("The matrix confirms the model heavily predicts class 1. Most class 2 and 3 restaurants are misclassified as class 1.")
 
