@@ -58,6 +58,31 @@ st.markdown("""
 hr { border-color: #1a1a28 !important; }
 .stCaption { color: #3a3a5a !important; }
 
+/* Hide keyboard shortcut tooltip on selectbox */
+[data-testid="InputInstructions"],
+[data-baseweb="tooltip"],
+div[class*="stTooltipIcon"],
+span[class*="keyboard"] { display: none !important; }
+
+/* Style selectbox nicely */
+[data-baseweb="select"] > div {
+    background: #12121e !important;
+    border: 1px solid #2a2a40 !important;
+    border-radius: 8px !important;
+    color: #e8e8ff !important; }
+[data-baseweb="select"] > div:focus-within {
+    border-color: #ff6b35 !important;
+    box-shadow: 0 0 0 2px rgba(255,107,53,0.15) !important; }
+[data-baseweb="select"] svg { fill: #6060a0 !important; }
+[data-baseweb="popover"] ul {
+    background: #12121e !important;
+    border: 1px solid #2a2a40 !important; }
+[data-baseweb="popover"] li {
+    background: #12121e !important;
+    color: #e8e8ff !important; }
+[data-baseweb="popover"] li:hover {
+    background: #1e1e30 !important; }
+
 .H   { font-family:'Syne',sans-serif; font-size:2.1rem; font-weight:800; color:#ffffff !important; letter-spacing:-0.02em; display:block; }
 .sub { font-size:.95rem; color:#7070b0 !important; margin-top:4px; display:block; }
 .kpi { background:#12121e; border:1px solid #1e1e30; border-radius:12px; padding:20px; text-align:center; }
