@@ -592,13 +592,13 @@ elif page == "ml":
     with c1:
         sec("Confusion Matrix — Random Forest")
         fig, ax = plt.subplots(figsize=(5, 4)); dax(ax, fig)
-        disp = ConfusionMatrixDisplay(cm, display_labels=["$ (1)","$$ (2)","$$$ (3)"])
+        disp = ConfusionMatrixDisplay(cm, display_labels=["Low", "Mid", "High"])
         disp.plot(ax=ax, colorbar=False, cmap="Blues")
         for text in ax.texts: text.set_color("white")
         ax.set_title("Confusion Matrix — Random Forest", fontsize=10)
         ax.tick_params(colors=TX, labelsize=9)
         ax.xaxis.label.set_color(TX); ax.yaxis.label.set_color(TX)
-        plt.tight_layout()
+        fig.tight_layout()
         _ = st.pyplot(fig, use_container_width=True); plt.close(fig)
         ins("The matrix confirms the model heavily predicts class 1 ($). Most class 2 and 3 restaurants are misclassified as class 1.")
 
