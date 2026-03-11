@@ -19,8 +19,9 @@ st.markdown("""
 .stApp p, .stApp span, .stApp div, .stApp label, .stApp li, .stMarkdown p { color: #d0d0f0 !important; }
 [data-testid="stSidebar"] { background: #07070d !important; border-right: 1px solid #1a1a28 !important; }
 [data-testid="stSidebar"] * { color: #6060a0 !important; }
-[data-testid="stSidebar"] .stButton button { background: transparent !important; color: #6060a0 !important; border: 1px solid #1a1a28 !important; border-radius: 8px !important; text-align: left !important; }
-[data-testid="stSidebar"] .stButton button:hover { background: #12122a !important; color: #fff !important; border-color: #ff6b35 !important; }
+[data-testid="stSidebar"] .stButton button { background: transparent !important; color: #6060a0 !important; border: 1px solid #1a1a28 !important; border-radius: 8px !important; text-align: left !important; padding: 8px 12px !important; }
+[data-testid="stSidebar"] .stButton button:hover { background: #1a1a2e !important; color: #fff !important; border-color: #ff6b35 !important; }
+.nav-active div[data-testid] button { background: #1e1e30 !important; color: #ff6b35 !important; border-color: #ff6b35 !important; font-weight: 700 !important; }
 .stTabs [data-baseweb="tab-list"] { gap: 6px; background: transparent !important; }
 .stTabs [data-baseweb="tab"] { background: #12121e !important; border: 1px solid #1e1e30 !important; border-radius: 8px !important; color: #6060a0 !important; padding: 7px 16px !important; }
 .stTabs [aria-selected="true"] { background: #ff6b35 !important; color: #fff !important; border-color: #ff6b35 !important; font-weight: 700 !important; }
@@ -31,8 +32,8 @@ st.markdown("""
 [data-testid="metric-container"] * { color: #d0d0f0 !important; }
 hr { border-color: #1a1a28 !important; }
 .stCaption { color: #3a3a5a !important; }
-.H  { font-family:'Syne',sans-serif; font-size:2.2rem; font-weight:800; color:#fff !important; letter-spacing:-0.02em; }
-.sub{ font-size:.95rem; color:#404060 !important; margin-top:2px; }
+.H  { font-family:'Syne',sans-serif; font-size:2.2rem; font-weight:800; color:#fff !important; letter-spacing:-0.02em; display:block; text-align:left; }
+.sub{ font-size:.95rem; color:#8080b0 !important; margin-top:4px; display:block; text-align:left; }
 .kpi{ background:#12121e; border:1px solid #1e1e30; border-radius:12px; padding:18px 20px; text-align:center; }
 .kv { font-family:'Syne',sans-serif; font-size:1.9rem; font-weight:800; color:#ff6b35 !important; line-height:1; }
 .kl { font-size:.7rem; color:#3a3a5a !important; text-transform:uppercase; letter-spacing:.1em; margin-top:5px; }
@@ -64,12 +65,16 @@ df = load_data()
 with st.sidebar:
     st.markdown("<div style='font-family:Syne,sans-serif;font-size:1.2rem;font-weight:800;color:#fff;padding:8px 0 14px'>🍽️ Riyadh<br>Restaurants</div>", unsafe_allow_html=True)
     st.divider()
-    st.markdown("<div style='font-size:.68rem;color:#303050;text-transform:uppercase;letter-spacing:.12em;margin-bottom:6px'>Navigation</div>", unsafe_allow_html=True)
+    st.markdown("<div style='font-size:.68rem;color:#5050a0;text-transform:uppercase;letter-spacing:.12em;margin-bottom:6px'>Navigation</div>", unsafe_allow_html=True)
     pages = {"🏠 Overview": "overview", "📊 EDA": "eda", "📍 Geography": "geography", "💰 Price & Quality": "price", "🤖 ML": "ml"}
     if "page" not in st.session_state:
         st.session_state.page = "overview"
     for label, key in pages.items():
-        if st.button(label, key=f"n_{key}", use_container_width=True):
+        active = st.session_state.page == key
+        if active:
+            st.markdown(f"""<style>[data-testid="stSidebar"] div[data-testid="stButton"][key="n_{key}"] button
+                {{background:#1e1e30!important;color:#ff6b35!important;border:1px solid #ff6b35!important;font-weight:700!important;}}</style>""", unsafe_allow_html=True)
+        if st.button(label, key=f'n_{key}', use_container_width=True):
             st.session_state.page = key
     st.divider()
     price_opts = sorted(df["price_level"].dropna().unique().tolist())
@@ -161,12 +166,6 @@ if page == "overview":
         plt.xticks(rotation=15, ha='right', fontsize=7)
         st.pyplot(fig); plt.close()
         ins("Budget dominates. Premium is under 4%.")
-
-    st.divider()
-    with st.expander("📋 Data Preview"):
-        st.dataframe(f[["name", "category", "rating", "price_level", "neighborhoods"]].head(50), use_container_width=True)
-    with st.expander("📊 Summary Statistics"):
-        st.dataframe(f[["rating", "price_level", "total_photos", "total_ratings", "total_tips"]].describe(), use_container_width=True)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
