@@ -5,6 +5,13 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import numpy as np
 
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay
+
 mpl.rcParams["text.usetex"] = False
 mpl.rcParams["mathtext.default"] = "regular"
 
@@ -171,7 +178,7 @@ if page == "overview":
         [t.set_color(TX) for t in leg.get_texts()]
         ax.set_xlabel("Rating", fontsize=9); ax.set_ylabel("Count", fontsize=9)
         ax.set_title("Distribution of Restaurant Ratings", fontsize=10)
-        st.pyplot(fig); plt.close()
+        st.pyplot(fig, use_container_width=True); plt.close()
         ins("Most restaurants in Riyadh are rated between 7 and 9, with a mean of 7.82 and a median of 7.90, indicating a balanced distribution. Ratings below 6 are uncommon, suggesting the city's dining scene generally maintains above-average quality.")
 
     with c2:
@@ -182,7 +189,7 @@ if page == "overview":
                       palette=[OR, CY, GR, YL, PK][:len(price_order)])
         ax.set_xlabel("Price Level", fontsize=9); ax.set_ylabel("Number of Restaurants", fontsize=9)
         ax.set_title("Distribution of Price Levels", fontsize=10)
-        st.pyplot(fig); plt.close()
+        st.pyplot(fig, use_container_width=True); plt.close()
         ins("Price level 1 ($) dominates with about 2,400 restaurants — nearly three times more than any other tier. Premium dining is rare: level 3 ($$$) has about 150 restaurants and level 4 ($$$$) is nearly absent. Riyadh's food scene is strongly skewed toward affordable dining.")
 
     st.divider()
@@ -197,7 +204,7 @@ if page == "overview":
         ax.set_xlabel("Count", fontsize=9); ax.set_ylabel("Category", fontsize=9)
         ax.set_title("Top 10 Restaurant Categories", fontsize=10)
         ax.tick_params(axis='y', labelsize=7)
-        st.pyplot(fig); plt.close()
+        st.pyplot(fig, use_container_width=True); plt.close()
         ins("Coffee Shop is the most common category with about 2,050 venues — more than three times the second-ranked Burger Joint (~640). The dominance of Coffee Shops highlights the strong café culture in Riyadh's food scene.")
 
     with c2:
@@ -209,7 +216,7 @@ if page == "overview":
         ax.set_xlabel("Number of Restaurants", fontsize=9); ax.set_ylabel("Neighborhood", fontsize=9)
         ax.set_title("Top Neighborhoods by Restaurant Count", fontsize=10)
         ax.tick_params(axis='y', labelsize=7)
-        st.pyplot(fig); plt.close()
+        st.pyplot(fig, use_container_width=True); plt.close()
         ins("Hiteen District has the highest concentration with about 365 restaurants, followed by Dhahrat Laban (~328) and Al Malqa (~315). Dining activity is heavily concentrated in the northern and northwestern districts of Riyadh.")
 
 
@@ -234,7 +241,7 @@ elif page == "eda":
             ax.set_xlabel("Count", fontsize=9); ax.set_ylabel("Category", fontsize=9)
             ax.set_title("Top 10 Restaurant Categories", fontsize=10)
             ax.tick_params(axis='y', labelsize=7)
-            st.pyplot(fig); plt.close()
+            st.pyplot(fig, use_container_width=True); plt.close()
             ins("Coffee Shop leads at ~2,050 venues — more than 3× Burger Joint (~640). Restaurant and Middle Eastern Restaurant follow at ~460 and ~420.")
 
         with c2:
@@ -247,7 +254,7 @@ elif page == "eda":
             ax.set_xlabel("Average Rating", fontsize=9); ax.set_ylabel("Category", fontsize=9)
             ax.set_title("Top Rated Restaurant Categories", fontsize=10)
             ax.tick_params(axis='y', labelsize=7)
-            st.pyplot(fig); plt.close()
+            st.pyplot(fig, use_container_width=True); plt.close()
             ins("The top-rated category is Restaurant & Juice Bar at ~9.4. All 10 top-rated categories are multi-tag combinations — venues offering more than one concept tend to rate higher. None of the most popular categories (Coffee Shop, Burger Joint) appear here, confirming popularity ≠ quality.")
 
     with tab2:
@@ -261,7 +268,7 @@ elif page == "eda":
                         palette=[OR, CY, GR, YL, PK][:len(price_order)])
             ax.set_xlabel("Price Level", fontsize=9); ax.set_ylabel("Rating", fontsize=9)
             ax.set_title("Rating by Price Level", fontsize=10)
-            st.pyplot(fig); plt.close()
+            st.pyplot(fig, use_container_width=True); plt.close()
             ins("Price levels 0, 1, and 2 have nearly identical medians around 7.9–8.0. Level 3 ($$$) shows a slightly lower median near 7.7. Higher prices do not correspond to higher ratings — budget and mid-range restaurants achieve comparable customer satisfaction.")
 
         with c2:
@@ -273,7 +280,7 @@ elif page == "eda":
             plt.xticks(rotation=45, ha="right", fontsize=7, color=TX)
             ax.set_xlabel("Neighborhood", fontsize=9); ax.set_ylabel("Rating", fontsize=9)
             ax.set_title("Ratings Across Top Neighborhoods", fontsize=10)
-            st.pyplot(fig); plt.close()
+            st.pyplot(fig, use_container_width=True); plt.close()
             ins("Al Qairawan and Al Malqa lead with medians at ~8.2. Al Yasmeen stands out with the widest spread and lowest outlier at ~4.7. Rating quality is fairly uniform across Riyadh regardless of location.")
 
     with tab3:
@@ -286,7 +293,7 @@ elif page == "eda":
                         annot_kws={"size":10,"color":"white"}, linewidths=0.5, linecolor=GRID)
             ax.set_title("Correlation Between Key Variables", fontsize=10)
             ax.tick_params(labelsize=8, colors=TX)
-            st.pyplot(fig); plt.close()
+            st.pyplot(fig, use_container_width=True); plt.close()
             ins("Strongest relationship: total_photos ↔ total_ratings (0.61) — both reflect popularity. Rating shows weak positive correlations with photos (0.28) and ratings count (0.25). price_level has almost no correlation with any variable.")
 
         with c2:
@@ -300,7 +307,7 @@ elif page == "eda":
                 ax.set_title("Top 5 Neighborhoods with the Greatest Food Variety", fontsize=9)
                 ax.set_xlabel("Price Level", fontsize=9); ax.set_ylabel("", fontsize=9)
                 ax.tick_params(labelsize=8, colors=TX)
-                st.pyplot(fig); plt.close()
+                st.pyplot(fig, use_container_width=True); plt.close()
             ins("Al Malqa leads with 42 unique categories at price level 1. Price level 1 ($) is consistently the most diverse tier. Premium dining (level 3) offers minimal variety, maxing out at just 6 categories in Dhahrat Laban.")
 
 
@@ -336,7 +343,7 @@ elif page == "geo":
         ax.scatter(df["longitude"], df["latitude"], alpha=0.35, s=6, color=OR)
         ax.set_xlabel("Longitude", fontsize=9); ax.set_ylabel("Latitude", fontsize=9)
         ax.set_title("Restaurant Locations Across Riyadh", fontsize=11)
-    st.pyplot(fig); plt.close()
+    st.pyplot(fig, use_container_width=True); plt.close()
     ins("The map overlay shows that restaurants are not evenly distributed across Riyadh. The highest concentration appears in the central and northern parts of the city, while the outer areas contain fewer locations. This reflects the concentration of commercial activity and population density.")
 
     st.divider()
@@ -364,7 +371,7 @@ elif page == "geo":
         ax.set_xlabel("Count", fontsize=9); ax.set_ylabel("", fontsize=9)
         ax.set_title(f"Top Categories in {selected}", fontsize=10)
         ax.tick_params(axis='y', labelsize=7)
-        st.pyplot(fig); plt.close()
+        st.pyplot(fig, use_container_width=True); plt.close()
 
     with c2:
         sec(f"Rating Distribution in {selected}")
@@ -378,7 +385,7 @@ elif page == "geo":
         [t.set_color(TX) for t in leg.get_texts()]
         ax.set_xlabel("Rating", fontsize=9); ax.set_ylabel("Count", fontsize=9)
         ax.set_title(f"Rating Distribution in {selected}", fontsize=10)
-        st.pyplot(fig); plt.close()
+        st.pyplot(fig, use_container_width=True); plt.close()
 
     neigh_rank = df["neighborhoods"].value_counts()
     rank_pos   = list(neigh_rank.index).index(selected) + 1 if selected in neigh_rank.index else "?"
@@ -399,7 +406,7 @@ elif page == "geo":
     plt.xticks(rotation=45, ha="right", fontsize=8, color=TX)
     ax.set_xlabel("Neighborhood", fontsize=9); ax.set_ylabel("Rating", fontsize=9)
     ax.set_title("Ratings Across Top Neighborhoods", fontsize=10)
-    st.pyplot(fig); plt.close()
+    st.pyplot(fig, use_container_width=True); plt.close()
     ins("Al Qairawan and Al Malqa lead with the highest medians at ~8.2, while Tuwaiq and Qurtubah sit lowest at ~7.8. Al Yasmeen stands out with the widest spread and the lowest single outlier at ~4.7 — indicating highly inconsistent quality. Hiteen, despite being the most restaurant-dense neighborhood, sits at a modest median of ~7.9.")
 
 
@@ -464,13 +471,6 @@ elif page == "ml":
     # Train models (cached so it only runs once)
     @st.cache_data
     def train_models():
-        from sklearn.ensemble import RandomForestClassifier
-        from sklearn.tree import DecisionTreeClassifier
-        from sklearn.linear_model import LogisticRegression
-        from sklearn.preprocessing import LabelEncoder
-        from sklearn.model_selection import train_test_split
-        from sklearn.metrics import classification_report, confusion_matrix
-
         feats  = ["rating","total_ratings","total_photos","total_tips","neighborhoods","category"]
         target = "price_level"
         dm = df[feats + [target]].dropna()
@@ -514,7 +514,7 @@ elif page == "ml":
             ax.text(bar.get_x()+bar.get_width()/2, bar.get_height()+20,
                     f"{v:,}", ha='center', fontsize=9, fontweight='bold', color=TX)
         ax.set_ylabel("Count", fontsize=9); ax.set_title("Class Distribution", fontsize=10)
-        st.pyplot(fig); plt.close()
+        st.pyplot(fig, use_container_width=True); plt.close()
     with c2:
         st.markdown("""<div class='wb' style='margin-top:0;'>
             ⚠️ <strong>Severe class imbalance:</strong> Class 1 ($) has roughly 15× more samples than
@@ -569,7 +569,6 @@ elif page == "ml":
 
     with c1:
         sec("Confusion Matrix — Random Forest")
-        from sklearn.metrics import ConfusionMatrixDisplay
         fig, ax = plt.subplots(figsize=(5, 4)); dax(ax, fig)
         disp = ConfusionMatrixDisplay(cm, display_labels=["$ (1)","$$ (2)","$$$ (3)"])
         disp.plot(ax=ax, colorbar=False, cmap="Blues")
@@ -578,7 +577,7 @@ elif page == "ml":
         ax.tick_params(colors=TX, labelsize=9)
         ax.xaxis.label.set_color(TX); ax.yaxis.label.set_color(TX)
         plt.tight_layout()
-        st.pyplot(fig); plt.close()
+        st.pyplot(fig, use_container_width=True); plt.close()
         ins("The matrix confirms the model heavily predicts class 1 ($). Most class 2 and 3 restaurants are misclassified as class 1.")
 
     with c2:
@@ -589,7 +588,7 @@ elif page == "ml":
         ax.set_xlabel("Importance Score", fontsize=9)
         ax.set_title("Feature Importance — Random Forest Classifier", fontsize=10)
         ax.tick_params(axis='y', labelsize=8)
-        st.pyplot(fig); plt.close()
+        st.pyplot(fig, use_container_width=True); plt.close()
         ins("total_photos and neighborhoods contribute the most to predictions. Rating itself is a surprisingly weak predictor — consistent with the near-zero price↔rating correlation found in EDA.")
 
     st.divider()
