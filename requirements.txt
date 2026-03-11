@@ -3,3 +3,6 @@ pandas
 seaborn
 matplotlib
 numpy
+geopandas
+shapely
+pyogrio
