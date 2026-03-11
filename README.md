@@ -9,12 +9,11 @@ An exploratory data analysis of 27,000+ places in Riyadh, filtered to food and d
 ```
 EDA_Project/
 │
-├── EDA_Project.ipynb       # Main Jupyter Notebook (full analysis)
+├── EDA_Project.ipynb       # Main Jupyter Notebook (EDA + ML classification)
 ├── clean_data.csv          # Cleaned and filtered restaurant dataset
 ├── app.py                  # Streamlit dashboard
 ├── README.md               # This file
 └── presentation.pptx       # Final presentation slides
-└── requirements.txt        # Streamlit requirements 
 ```
 
 ---
@@ -102,6 +101,50 @@ To assign each restaurant to a Riyadh neighborhood, the project uses a GeoJSON f
 
 ---
 
+## 🤖 Machine Learning — Price Level Classification
+
+Beyond EDA, a supervised ML task was added to predict a restaurant's **price level (1, 2, or 3)** based on its features.
+
+### 🎯 Problem
+Multi-class classification: predict whether a restaurant is budget ($), mid-range ($$), or premium ($$$).  
+Price level 0 (unspecified) was excluded from training.
+
+### 📋 Features Used
+
+| Feature | Type |
+|---|---|
+| `rating` | Numerical |
+| `total_ratings` | Numerical |
+| `total_photos` | Numerical |
+| `total_tips` | Numerical |
+| `neighborhoods` | Categorical (LabelEncoded) |
+| `category` | Categorical (LabelEncoded) |
+
+### 🤖 Models Trained
+
+| Model | Accuracy | Notes |
+|---|---|---|
+| Random Forest | 72% | Best overall — biased toward class 1 due to imbalance |
+| Decision Tree | 59% | More balanced across classes, weaker overall |
+| Logistic Regression | ~18% | Struggled — features are not linearly separable |
+
+### ⚠️ Class Imbalance
+
+The dataset is heavily skewed:
+- Class 1 ($): ~2,400 venues
+- Class 2 ($$): ~700 venues
+- Class 3 ($$$): ~150 venues
+
+All models used `class_weight="balanced"` to compensate.
+
+### 📊 Key Finding
+
+The models struggled to reliably distinguish $$ and $$$ restaurants because **rating, photos, and engagement metrics have near-zero correlation with price level** — which was already confirmed in the EDA correlation heatmap. Price in Riyadh's dining scene appears to be driven by factors not captured in this dataset (e.g. brand, interior, prestige).
+
+Random Forest was the best-performing model, but is only reliably accurate for predicting class 1 ($) restaurants.
+
+---
+
 ## 🛠️ Libraries Used
 
 - `pandas` — data manipulation
@@ -110,3 +153,4 @@ To assign each restaurant to a Riyadh neighborhood, the project uses a GeoJSON f
 - `geopandas` / `shapely` — spatial analysis
 - `kagglehub` — dataset download
 - `streamlit` — interactive dashboard
+- `scikit-learn` — machine learning models and evaluation
