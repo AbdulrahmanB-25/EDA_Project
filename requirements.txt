@@ -6,3 +6,4 @@ numpy
 geopandas
 shapely
 pyogrio
+scikit-learn
