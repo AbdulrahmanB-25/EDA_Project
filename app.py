@@ -508,9 +508,10 @@ elif page == "ml":
     c1, c2 = st.columns([1, 1.6])
     with c1:
         fig, ax = plt.subplots(figsize=(5, 3.5)); dax(ax, fig)
-        bars = ax.bar(["Low (1)","Mid (2)","High (3)"], class_dist.values,
-                      color=[OR, CY, GR], edgecolor=BG)
-        for bar, v in zip(bars, class_dist.values):
+        labels = ["Low (1)", "Mid (2)", "High (3)"]
+        counts = [int(class_dist.get(k, 0)) for k in [1, 2, 3]]
+        bars = ax.bar(labels, counts, color=[OR, CY, GR], edgecolor=BG)
+        for bar, v in zip(bars, counts):
             ax.text(bar.get_x()+bar.get_width()/2, bar.get_height()+20,
                     f"{v:,}", ha='center', fontsize=9, fontweight='bold', color=TX)
         ax.set_ylabel("Count", fontsize=9); ax.set_title("Class Distribution", fontsize=10)
