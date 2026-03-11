@@ -494,7 +494,6 @@ elif page == "ml":
         fi = pd.Series(rf.feature_importances_, index=feats).sort_values()
         cm = confusion_matrix(y_te, preds["Random Forest"])
         reports = {n: classification_report(y_te, p, labels=[1,2,3],
-                       target_names=["Low (1)","Mid (2)","High (3)"],
                        zero_division=0, output_dict=True)
                    for n, p in preds.items()}
         class_dist = dm[target].value_counts().sort_index()
@@ -538,8 +537,11 @@ elif page == "ml":
     for m in model_meta:
         rep = reports[m["name"]]
         acc = f"{rep['accuracy']*100:.0f}%"
-        rows = [(c, rep[c]["precision"], rep[c]["recall"], rep[c]["f1-score"])
-                for c in ["Low (1)","Mid (2)","High (3)"]]
+        label_map = {1: "Low (1)", 2: "Mid (2)", 3: "High (3)"}
+        rows = [(label_map[k], rep.get(k, rep.get(str(k), {})).get("precision", 0),
+                               rep.get(k, rep.get(str(k), {})).get("recall", 0),
+                               rep.get(k, rep.get(str(k), {})).get("f1-score", 0))
+                for k in [1, 2, 3]]
         rows_html = "".join([
             f"<tr style='border-bottom:1px solid #1a1a28;'>"
             f"<td style='padding:5px 0;color:#505070;font-size:.78rem;'>{cls}</td>"
