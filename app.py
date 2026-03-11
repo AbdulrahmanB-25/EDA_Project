@@ -183,7 +183,7 @@ if page == "overview":
         ax.axvline(df["rating"].median(), color="blue", linestyle="-",  lw=1.8,
                    label=f"Median: {df['rating'].median():.2f}")
         leg = ax.legend(fontsize=9); leg.get_frame().set_facecolor(CARD)
-        [t.set_color(TX) for t in leg.get_texts()]
+        _ = [t.set_color(TX) for t in leg.get_texts()]
         ax.set_xlabel("Rating", fontsize=9); ax.set_ylabel("Count", fontsize=9)
         ax.set_title("Distribution of Restaurant Ratings", fontsize=10)
         st.image(fig_to_img(fig)); plt.close(fig)
@@ -397,7 +397,7 @@ elif page == "geo":
         ax.axvline(nd["rating"].median(), color="blue", linestyle="-",  lw=1.5,
                    label=f"Median: {nd['rating'].median():.2f}")
         leg = ax.legend(fontsize=8); leg.get_frame().set_facecolor(CARD)
-        [t.set_color(TX) for t in leg.get_texts()]
+        _ = [t.set_color(TX) for t in leg.get_texts()]
         ax.set_xlabel("Rating", fontsize=9); ax.set_ylabel("Count", fontsize=9)
         ax.set_title(f"Rating Distribution in {selected}", fontsize=10)
         st.image(fig_to_img(fig)); plt.close(fig)
@@ -616,18 +616,14 @@ elif page == "ml":
             disp = ConfusionMatrixDisplay(cm, display_labels=["Low", "Mid", "High"])
             disp.plot(ax=ax, colorbar=False, cmap=dark_cmap)
             # Style all cell text white and bold
-            for text in ax.texts:
-                text.set_color("white")
-                text.set_fontweight("bold")
-                text.set_fontsize(11)
+            _ = [(text.set_color("white"), text.set_fontweight("bold"), text.set_fontsize(11)) for text in ax.texts]
             ax.set_facecolor(CARD)
             fig.patch.set_facecolor(CARD)
             ax.set_title("Confusion Matrix - Random Forest", fontsize=10, color=TX)
             ax.tick_params(colors=TX, labelsize=9)
             ax.xaxis.label.set_color(TX)
             ax.yaxis.label.set_color(TX)
-            for tick in ax.get_xticklabels() + ax.get_yticklabels():
-                tick.set_color(TX)
+            _ = [tick.set_color(TX) for tick in ax.get_xticklabels() + ax.get_yticklabels()]
             for sp in ax.spines.values():
                 sp.set_color(GRID)
         st.image(fig_to_img(fig)); plt.close(fig)
