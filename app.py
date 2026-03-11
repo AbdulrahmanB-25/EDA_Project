@@ -64,7 +64,7 @@ hr { border-color: #1a1a28 !important; }
 div[class*="stTooltipIcon"],
 span[class*="keyboard"] { display: none !important; }
 
-/* Style selectbox nicely */
+/* Selectbox full dark styling */
 [data-baseweb="select"] > div {
     background: #12121e !important;
     border: 1px solid #2a2a40 !important;
@@ -80,8 +80,19 @@ span[class*="keyboard"] { display: none !important; }
 [data-baseweb="popover"] li {
     background: #12121e !important;
     color: #e8e8ff !important; }
-[data-baseweb="popover"] li:hover {
-    background: #1e1e30 !important; }
+[data-baseweb="popover"] li:hover { background: #1e1e30 !important; }
+
+/* Hide the keyboard shortcut text completely */
+[data-testid="InputInstructions"] { display: none !important; }
+[data-baseweb="select"] input { caret-color: transparent !important; }
+div[data-baseweb="select"] [data-testid="stMarkdownContainer"] { display: none !important; }
+
+/* Style the selectbox label */
+[data-testid="stSelectbox"] label {
+    color: #7070b0 !important;
+    font-size: .85rem !important;
+    font-weight: 500 !important;
+    margin-bottom: 4px !important; }
 
 .H   { font-family:'Syne',sans-serif; font-size:2.1rem; font-weight:800; color:#ffffff !important; letter-spacing:-0.02em; display:block; }
 .sub { font-size:.95rem; color:#7070b0 !important; margin-top:4px; display:block; }
@@ -383,7 +394,8 @@ elif page == "geo":
     sec("Explore by Neighborhood")
     all_neighborhoods = sorted(df["neighborhoods"].dropna().unique())
     default_idx = all_neighborhoods.index("Hiteen") if "Hiteen" in all_neighborhoods else 0
-    selected = st.selectbox("Select a neighborhood", all_neighborhoods, index=default_idx)
+    st.markdown("<div style='font-size:.85rem;color:#7070b0;margin-bottom:6px;'>📍 Select a neighborhood</div>", unsafe_allow_html=True)
+    selected = st.selectbox("", all_neighborhoods, index=default_idx, label_visibility="collapsed")
     nd = df[df["neighborhoods"] == selected]
 
     m1, m2, m3, m4 = st.columns(4)
