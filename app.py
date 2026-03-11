@@ -207,7 +207,7 @@ with st.sidebar:
     price_options = sorted(df["price_level"].dropna().unique().tolist())
     selected_prices = st.multiselect(
         "Price Level", options=price_options, default=price_options,
-        format_func=lambda x: "Unspecified" if x == 0 else ("$" * int(x)).replace("$$", "$ $")
+        format_func=lambda x: "Unspecified" if x == 0 else ("$" * int(x))
     )
 
     min_rating, max_rating = float(df["rating"].min()), float(df["rating"].max())
@@ -241,6 +241,18 @@ def style_ax(ax, fig):
 
 RED  = "#c0152a"
 REDS = ["#c0152a", "#a01020", "#800818", "#600010", "#400008"]
+
+# Re-apply after all imports (geopandas can reset these)
+import matplotlib as mpl
+mpl.rcParams["text.usetex"]      = False
+mpl.rcParams["mathtext.default"] = "regular"
+
+def price_label(x):
+    """Return a matplotlib-safe price label — no raw $$ sequences."""
+    if x == 0:
+        return "Unspecified"
+    n = int(x)
+    return r"\$" * n   # escaped so matplotlib never parses as math
 
 # ══════════════════════════════════════════════════════════════════════════════
 # PAGE: OVERVIEW
@@ -296,7 +308,7 @@ if page == "overview":
     with c3:
         st.markdown("**Price Level Split**")
         price_counts = filtered["price_level"].value_counts().sort_index()
-        labels = ["Unspecified" if x == 0 else "$" * int(x) for x in price_counts.index]
+        labels = [price_label(x) for x in price_counts.index]
         fig, ax = plt.subplots(figsize=(5, 3))
         style_ax(ax, fig)
         ax.bar(labels, price_counts.values,
@@ -562,7 +574,7 @@ elif page == "price":
         style_ax(ax, fig)
         for pl in sorted(filtered["price_level"].dropna().unique()):
             data = filtered[filtered["price_level"] == pl]["rating"].dropna()
-            label = "Unspecified" if pl == 0 else "$" * int(pl)
+            label = price_label(pl)
             ax.hist(data, bins=15, alpha=0.6, label=label, color=price_colors.get(pl, "#999"))
         ax.set_xlabel("Rating", fontsize=9); ax.set_ylabel("Count", fontsize=9)
         ax.legend(fontsize=8)
@@ -572,9 +584,7 @@ elif page == "price":
     with c2:
         st.markdown('<div class="section-title">Median Rating per Price Level</div>', unsafe_allow_html=True)
         median_by_price = filtered.groupby("price_level")["rating"].median().reset_index()
-        median_by_price["label"] = median_by_price["price_level"].apply(
-            lambda x: "Unspecified" if x == 0 else "$" * int(x)
-        )
+        median_by_price["label"] = median_by_price["price_level"].apply(price_label)
         fig, ax = plt.subplots(figsize=(6, 4))
         style_ax(ax, fig)
         bar_colors = [price_colors.get(p, "#ccc") for p in median_by_price["price_level"]]
