@@ -1,6 +1,8 @@
 # 🍽️ Riyadh Restaurant EDA — Unit 3 Final Project
 
-An exploratory data analysis of 27,000+ places in Riyadh, filtered to food and dining venues, with geographic enrichment, cleaning, and insight visualization.
+Exploratory data analysis of 27,000+ Foursquare places in Riyadh, filtered and cleaned down to ~11,000 food and dining venues, enriched with neighborhood geography, and extended with a supervised ML price classifier.
+
+🔗 **Live Dashboard:** [https://riyadh-restaurant-eda.streamlit.app/](https://riyadh-restaurant-eda.streamlit.app/)
 
 ---
 
@@ -9,60 +11,67 @@ An exploratory data analysis of 27,000+ places in Riyadh, filtered to food and d
 ```
 EDA_Project/
 │
-├── EDA_Project.ipynb       # Main Jupyter Notebook (EDA + ML classification)
-├── clean_data.csv          # Cleaned and filtered restaurant dataset
+├── EDA_Project.ipynb       # Main notebook — cleaning, EDA, ML
+├── clean_data.csv          # Final cleaned dataset (~11k rows)
 ├── app.py                  # Streamlit dashboard
-├── README.md               # This file
-└── presentation.pptx       # Final presentation slides
+└── README.md               # This file
 ```
 
 ---
 
 ## 📊 Dataset
 
-- **Source:** [27K Riyadh Places Raw — Kaggle](https://www.kaggle.com/datasets/mohammedaldakhil/27k-riyadh-places-raw)
-- **Original size:** ~27,000 rows, 17 columns
-- **After filtering:** ~5,000+ food & dining venues
-- **Key columns:** `name`, `category`, `rating`, `price`, `total_ratings`, `total_photos`, `latitude`, `longitude`, `neighborhoods`
+| | |
+|---|---|
+| **Source** | [27K Riyadh Places Raw — Kaggle](https://www.kaggle.com/datasets/mohammedaldakhil/27k-riyadh-places-raw) |
+| **Original size** | 26,985 rows, 17 columns |
+| **After filtering** | ~11,187 food & dining venues |
+| **Key columns** | `name`, `category`, `rating`, `price`, `total_ratings`, `total_photos`, `total_tips`, `latitude`, `longitude`, `neighborhoods` |
 
 ---
 
-## 🗺️ Geographic Data
+## 🗺️ Geographic Enrichment
 
-To assign each restaurant to a Riyadh neighborhood, the project uses a GeoJSON file containing Saudi Arabia's regions, cities, and district boundaries.
+Neighborhood names were assigned to each restaurant using a GeoJSON file of Saudi Arabia's administrative boundaries.
 
-- **Source:** [Saudi Arabia Regions, Cities and Districts — GitHub](https://github.com/homaily/Saudi-Arabia-Regions-Cities-and-Districts/tree/master)
+- **Source:** [Saudi Arabia Regions, Cities and Districts — GitHub](https://github.com/homaily/Saudi-Arabia-Regions-Cities-and-Districts)
 - **File used:** `geojson/districts.geojson`
-- **How it was used:** The district polygons were filtered to Riyadh (city_id == 3), then a spatial join (`gpd.sjoin`) was performed against restaurant coordinates to assign each venue its neighborhood name. A nearest-neighbor fallback was applied for any points that fell outside polygon boundaries.
+- **Method:** Districts were filtered to Riyadh (`city_id == 3`), then a spatial join (`gpd.sjoin`) was performed against each restaurant's coordinates. A nearest-neighbor fallback (`gpd.sjoin_nearest`) handled any points that fell outside polygon boundaries — resulting in 0 unassigned venues.
 
 ---
 
 ## 🔍 Research Questions
 
-1. What are the most common food place types in Riyadh?
-2. Which categories have the highest ratings?
-3. Where are restaurants geographically concentrated?
-4. Do expensive restaurants receive better ratings?
-5. Where in Riyadh can people find the greatest variety of food types, and how does that variety change across price levels?
+1. What are the most common food venue types in Riyadh?
+2. Which categories receive the highest average ratings?
+3. Where are restaurants geographically concentrated across the city?
+4. Do more expensive restaurants receive better ratings?
+5. Which neighborhoods offer the greatest variety of food types, and how does that variety change across price levels?
 
 ---
 
-## 🧹 Data Cleaning Steps
+## 🧹 Data Cleaning Pipeline
 
-- Removed the unnamed CSV index column
+The cleaning pipeline runs in the following order — **order matters** because each step depends on the previous one:
+
+1. **Filter** raw `df` to food venues using 53 food keywords → `df_restaurants` (11,187 rows)
+2. **Encode price** — count `$` symbols in `price` column → `price_level` integer
+3. **Normalize categories** — map 216 raw Foursquare tags to 35 canonical categories using a priority lookup table (`assign_canonical`)
+4. **Drop unmapped rows** — `dropna(subset=['category'])` + `reset_index(drop=True)`
+5. **Assign neighborhoods** — spatial join with Riyadh district polygons (must run last to ensure index alignment)
+
+Additional cleaning applied to the raw dataset before filtering:
+- Removed unnamed CSV index column
 - Filled `total_tips` and `total_photos` NaNs with 0
 - Fixed negative `total_photos` values (set to 0)
 - Replaced empty list strings `[]` in `tips` and `tastes` with NaN
-- Encoded `price` column into numeric `price_level` (count of `$` symbols)
-- Filtered dataset to food-related venues using 34 food keywords
-- Added `neighborhoods` column via spatial join with Riyadh district GeoJSON
 
 ---
 
 ## 📈 Visualizations
 
-| # | Chart | Answers |
-|---|-------|---------|
+| # | Chart | Research Question |
+|---|---|---|
 | 1 | Restaurant Locations Map | Q3 |
 | 2 | Rating Distribution Histogram | General |
 | 3 | Price Level Countplot | General |
@@ -71,45 +80,28 @@ To assign each restaurant to a Riyadh neighborhood, the project uses a GeoJSON f
 | 6 | Rating by Price Level Boxplot | Q4 |
 | 7 | Ratings Across Top Neighborhoods Boxplot | Q3 |
 | 8 | Top Rated Categories Bar Chart | Q2 |
-| 9 | Food Variety Heatmap | Q5 |
+| 9 | Food Variety by Neighborhood Heatmap | Q5 |
 | 10 | Correlation Heatmap | General |
-
----
-
-## 🚀 How to Run
-
-### Jupyter Notebook (Google Colab)
-1. Open `EDA_Project.ipynb` in Google Colab
-2. Run Cell 1 to install dependencies and download the dataset
-3. Wait for the Kaggle download to complete before proceeding
-4. Run all remaining cells in order
-
-### Streamlit Dashboard
-
-🔗 **Live App:** [https://riyadh-restaurant-eda.streamlit.app/](https://riyadh-restaurant-eda.streamlit.app/)
 
 ---
 
 ## 🔑 Key Insights
 
-- Coffee Shops dominate Riyadh's food scene with ~2,050 venues — 3x more than Burger Joints
-- Ratings are consistently high across the city (mean 7.82, median 7.90)
-- Price has virtually no correlation with rating (-0.0076)
-- Al Malqa District offers the greatest food variety (42 unique categories at price level 1)
-- Hiteen District has the most restaurants (~365) but an average median rating of ~7.9
-- Multi-concept venues (e.g. Restaurant & Juice Bar) consistently outrate single-type venues
+- **Coffee Shops dominate** — ~2,050 venues, more than 3× the second-ranked Burger Joint
+- **Ratings are consistently high** — mean 7.82, median 7.90; very few venues fall below 6.0
+- **Price has no correlation with rating** — levels 1, 2, and 3 share nearly identical median ratings (~7.9)
+- **Northern Riyadh leads in density** — Hiteen, Dhahrat Laban, and Al Malqa are the top 3 neighborhoods
+- **Al Malqa offers the most food variety** — 42 unique categories at price level 1, the highest single value in the dataset
+- **Popularity does not equal quality** — the most-counted categories never appear in the top-rated list
+- **Multi-concept venues rate higher** — niche combinations consistently outperform single-type venues
 
 ---
 
-## 🤖 Machine Learning — Price Level Classification
+## 🤖 Machine Learning — Price Level Classifier
 
-Beyond EDA, a supervised ML task was added to predict a restaurant's **price level (1, 2, or 3)** based on its features.
+A supervised classification task was added to predict a restaurant's price level (1, 2, or 3) from available features.
 
-### 🎯 Problem
-Multi-class classification: predict whether a restaurant is budget ($), mid-range ($$), or premium ($$$).  
-Price level 0 (unspecified) was excluded from training.
-
-### 📋 Features Used
+### Features Used
 
 | Feature | Type |
 |---|---|
@@ -117,40 +109,62 @@ Price level 0 (unspecified) was excluded from training.
 | `total_ratings` | Numerical |
 | `total_photos` | Numerical |
 | `total_tips` | Numerical |
-| `neighborhoods` | Categorical (LabelEncoded) |
-| `category` | Categorical (LabelEncoded) |
+| `neighborhoods` | Categorical → LabelEncoded |
+| `category` | Categorical → LabelEncoded |
 
-### 🤖 Models Trained
+Price level 0 (unspecified) was excluded from training. All models used `class_weight="balanced"` to handle severe class imbalance (class 1 has ~15× more samples than class 3).
+
+### Results
 
 | Model | Accuracy | Notes |
 |---|---|---|
-| Random Forest | 72% | Best overall — biased toward class 1 due to imbalance |
-| Decision Tree | 59% | More balanced across classes, weaker overall |
-| Logistic Regression | ~18% | Struggled — features are not linearly separable |
+| **Random Forest** | **72%** | Best overall — reliable for class 1, struggles on minority classes |
+| Decision Tree | 59% | More balanced across classes, lower overall accuracy |
+| Logistic Regression | ~18% | Features are not linearly separable; converged poorly |
 
-### ⚠️ Class Imbalance
+### Why the Models Struggle
 
-The dataset is heavily skewed:
-- Class 1 ($): ~2,400 venues
-- Class 2 ($$): ~700 venues
-- Class 3 ($$$): ~150 venues
+The EDA correlation heatmap already revealed that `price_level` has near-zero correlation with every available feature. The models are trying to predict something the data does not clearly encode. Price in Riyadh's food scene is likely driven by brand prestige, interior design, location within a neighborhood, and cuisine depth — none of which are captured in this dataset.
 
-All models used `class_weight="balanced"` to compensate.
+---
 
-### 📊 Key Finding
+## 🚀 How to Run
 
-The models struggled to reliably distinguish $$ and $$$ restaurants because **rating, photos, and engagement metrics have near-zero correlation with price level** — which was already confirmed in the EDA correlation heatmap. Price in Riyadh's dining scene appears to be driven by factors not captured in this dataset (e.g. brand, interior, prestige).
+### Jupyter Notebook (Google Colab)
+1. Open `EDA_Project.ipynb` in Google Colab
+2. Run Cell 1 to install dependencies (`geopandas`, `shapely`, `imbalanced-learn`) and clone the GeoJSON repo
+3. Wait for the Kaggle dataset download to complete before proceeding
+4. Run all remaining cells **in order** — the pipeline order is critical
 
-Random Forest was the best-performing model, but is only reliably accurate for predicting class 1 ($) restaurants.
+### Streamlit Dashboard (Local)
+```bash
+pip install streamlit pandas seaborn matplotlib scikit-learn geopandas
+streamlit run app.py
+```
 
 ---
 
 ## 🛠️ Libraries Used
 
-- `pandas` — data manipulation
-- `numpy` — numerical operations
-- `matplotlib` / `seaborn` — visualization
-- `geopandas` / `shapely` — spatial analysis
-- `kagglehub` — dataset download
-- `streamlit` — interactive dashboard
-- `scikit-learn` — machine learning models and evaluation
+| Library | Purpose |
+|---|---|
+| `pandas` | Data manipulation |
+| `numpy` | Numerical operations |
+| `matplotlib` / `seaborn` | Visualization |
+| `geopandas` / `shapely` | Spatial analysis and neighborhood assignment |
+| `kagglehub` | Dataset download |
+| `streamlit` | Interactive dashboard |
+| `scikit-learn` | ML models, encoding, evaluation |
+| `ast` | Parsing raw Foursquare category list strings |
+
+---
+
+## 👤 Project Info
+
+| | |
+|---|---|
+| **Student** | Abdulrahman Bajunaid |
+| **Instructor** | Khulud Alshammari |
+| **TA** | Abdullah Alharbi |
+| **Institution** | Tuwaiq Academy |
+| **Unit** | 3 — Exploratory Data Analysis |
