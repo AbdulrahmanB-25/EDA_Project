@@ -149,10 +149,8 @@ Despite near-zero correlation between price_level and all features in the EDA he
 4. Run all remaining cells **in order** — pipeline order is critical
 
 ### Streamlit Dashboard (Local)
-```bash
-pip install streamlit pandas seaborn matplotlib scikit-learn geopandas
-streamlit run app.py
-```
+```https://riyadh-restaurant-eda.streamlit.app/```
+
 
 ---
 
