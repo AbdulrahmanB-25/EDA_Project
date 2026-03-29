@@ -181,15 +181,16 @@ if page == "overview":
     sub("Exploratory analysis of 11,000+ food & dining venues across Riyadh — Unit 3 Final Project")
     st.markdown("<br>", unsafe_allow_html=True)
 
-    for col, val, label in zip(st.columns(5), [
-        f"{len(df):,}",
-        f"{df['rating'].mean():.2f}",
-        f"{df['category'].nunique()}",
-        f"{df['neighborhoods'].nunique()}",
-        f"{int(df['price_level'].median())}",
-    ], ["Total Venues", "Avg Rating", "Categories", "Neighborhoods", "Median Price Level"]):
-        col.markdown(f'<div class="kpi"><div class="kv">{val}</div><div class="kl">{label}</div></div>',
-                     unsafe_allow_html=True)
+    kpi_cols = st.columns(5)
+    kpi_data = [
+        (f"{len(df):,}",                    "Total Venues"),
+        (f"{df['rating'].mean():.2f}",       "Avg Rating"),
+        (f"{df['category'].nunique()}",      "Categories"),
+        (f"{df['neighborhoods'].nunique()}", "Neighborhoods"),
+        (f"{int(df['price_level'].median())}","Median Price Level"),
+    ]
+    for col, (val, label) in zip(kpi_cols, kpi_data):
+        col.metric(label, val)
 
     st.markdown("<br>", unsafe_allow_html=True)
     st.divider()
@@ -416,13 +417,22 @@ elif page == "geo":
     with c2:
         sec(f"Rating Distribution in {selected}")
         fig, ax = plt.subplots(figsize=(6, 4.5)); dax(ax, fig)
-        sns.histplot(nd["rating"], bins=15, kde=True, ax=ax, color=CY, alpha=0.8)
-        ax.axvline(nd["rating"].mean(),   color="red",  linestyle="--", lw=1.5,
-                   label=f"Mean: {nd['rating'].mean():.2f}")
-        ax.axvline(nd["rating"].median(), color="blue", linestyle="-",  lw=1.5,
-                   label=f"Median: {nd['rating'].median():.2f}")
-        leg = ax.legend(fontsize=8); leg.get_frame().set_facecolor(CARD)
-        [t.set_color(TX) for t in leg.get_texts()]
+        rated = nd["rating"].dropna()
+        if len(rated) >= 10:
+            n_bins = min(15, max(5, len(rated) // 3))
+            sns.histplot(rated, bins=n_bins, kde=len(rated) >= 20, ax=ax, color=CY, alpha=0.8)
+        else:
+            # Too few points for a histogram — show a dot plot instead
+            ax.scatter(rated, [1]*len(rated), color=CY, s=80, alpha=0.8, zorder=3)
+            ax.set_yticks([])
+            ax.set_ylim(0, 2)
+        if len(rated) > 0:
+            ax.axvline(rated.mean(),   color="red",  linestyle="--", lw=1.5,
+                       label=f"Mean: {rated.mean():.2f}")
+            ax.axvline(rated.median(), color="blue", linestyle="-",  lw=1.5,
+                       label=f"Median: {rated.median():.2f}")
+            leg = ax.legend(fontsize=8); leg.get_frame().set_facecolor(CARD)
+            [t.set_color(TX) for t in leg.get_texts()]
         ax.set_xlabel("Rating", fontsize=9); ax.set_ylabel("Count", fontsize=9)
         ax.set_title(f"Rating Distribution in {selected}", fontsize=10)
         st.image(fig_to_img(fig)); plt.close(fig)
@@ -625,19 +635,25 @@ elif page == "ml":
 
     with c1:
         sec("Confusion Matrix — Random Forest")
-        with mpl.rc_context({"text.usetex": False, "mathtext.default": "regular"}):
-            from matplotlib.colors import LinearSegmentedColormap
-            dark_cmap = LinearSegmentedColormap.from_list("dark_blue", ["#0d0d12", "#1a2a4a", "#1e4080", OR], N=256)
-            fig, ax = plt.subplots(figsize=(5, 4)); dax(ax, fig)
-            disp = ConfusionMatrixDisplay(cm, display_labels=["Low", "Mid", "High"])
-            disp.plot(ax=ax, colorbar=False, cmap=dark_cmap)
-            [(text.set_color("white"), text.set_fontweight("bold"), text.set_fontsize(11)) for text in ax.texts]
-            ax.set_facecolor(CARD); fig.patch.set_facecolor(CARD)
-            ax.set_title("Confusion Matrix — Random Forest", fontsize=10, color=TX)
-            ax.tick_params(colors=TX, labelsize=9)
-            ax.xaxis.label.set_color(TX); ax.yaxis.label.set_color(TX)
-            [tick.set_color(TX) for tick in ax.get_xticklabels() + ax.get_yticklabels()]
-            for sp in ax.spines.values(): sp.set_color(GRID)
+        from matplotlib.colors import LinearSegmentedColormap
+        dark_cmap = LinearSegmentedColormap.from_list("dark_blue", ["#0d0d12", "#1a2a4a", "#1e4080", OR], N=256)
+        fig, ax = plt.subplots(figsize=(5, 4)); dax(ax, fig)
+        # Draw heatmap manually to avoid ConfusionMatrixDisplay rendering issues
+        im = ax.imshow(cm, interpolation="nearest", cmap=dark_cmap)
+        labels = ["Low (1)", "Mid (2)", "High (3)"]
+        ax.set_xticks([0, 1, 2]); ax.set_yticks([0, 1, 2])
+        ax.set_xticklabels(labels, fontsize=8, color=TX)
+        ax.set_yticklabels(labels, fontsize=8, color=TX)
+        ax.set_xlabel("Predicted", fontsize=9, color=TX)
+        ax.set_ylabel("True", fontsize=9, color=TX)
+        ax.set_title("Confusion Matrix — Random Forest", fontsize=10, color=TX)
+        thresh = cm.max() / 2.0
+        for i in range(cm.shape[0]):
+            for j in range(cm.shape[1]):
+                ax.text(j, i, str(cm[i, j]), ha="center", va="center",
+                        color="white" if cm[i, j] > thresh else TX,
+                        fontsize=13, fontweight="bold")
+        fig.tight_layout()
         st.image(fig_to_img(fig)); plt.close(fig)
         ins("The matrix confirms the model heavily predicts class 1. Most class 2 and 3 restaurants are misclassified as budget — a direct consequence of severe class imbalance and the near-zero correlation between price and available features.")
 
