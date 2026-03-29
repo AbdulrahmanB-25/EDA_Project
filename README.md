@@ -138,19 +138,6 @@ Price level 0 (unspecified) was excluded. All models used `class_weight="balance
 
 Despite near-zero correlation between price_level and all features in the EDA heatmap, the models achieved strong weighted accuracy by leveraging the dominant class 1 structure. The real challenge is the minority classes — `total_photos` and `neighborhoods` are the top two predictors by feature importance, while `rating` contributes surprisingly little.
 
----
-
-## 🚀 How to Run
-
-### Jupyter Notebook (Google Colab)
-1. Open `EDA_Project.ipynb` in Google Colab
-2. Run Cell 1 to install dependencies and clone the GeoJSON repo
-3. Wait for the Kaggle dataset download to complete
-4. Run all remaining cells **in order** — pipeline order is critical
-
-### Streamlit Dashboard (Local)
-```https://riyadh-restaurant-eda.streamlit.app/```
-
 
 ---
 
