@@ -10,7 +10,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
 mpl.rcParams["text.usetex"] = False
 mpl.rcParams["mathtext.default"] = "regular"
@@ -58,41 +58,24 @@ st.markdown("""
 hr { border-color: #1a1a28 !important; }
 .stCaption { color: #3a3a5a !important; }
 
-/* Hide keyboard shortcut tooltip on selectbox */
-[data-testid="InputInstructions"],
-[data-baseweb="tooltip"],
-div[class*="stTooltipIcon"],
-span[class*="keyboard"] { display: none !important; }
+[data-testid="InputInstructions"], [data-baseweb="tooltip"],
+div[class*="stTooltipIcon"], span[class*="keyboard"] { display: none !important; }
 
-/* Selectbox full dark styling */
 [data-baseweb="select"] > div {
-    background: #12121e !important;
-    border: 1px solid #2a2a40 !important;
-    border-radius: 8px !important;
-    color: #e8e8ff !important; }
+    background: #12121e !important; border: 1px solid #2a2a40 !important;
+    border-radius: 8px !important; color: #e8e8ff !important; }
 [data-baseweb="select"] > div:focus-within {
-    border-color: #ff6b35 !important;
-    box-shadow: 0 0 0 2px rgba(255,107,53,0.15) !important; }
+    border-color: #ff6b35 !important; box-shadow: 0 0 0 2px rgba(255,107,53,0.15) !important; }
 [data-baseweb="select"] svg { fill: #6060a0 !important; }
-[data-baseweb="popover"] ul {
-    background: #12121e !important;
-    border: 1px solid #2a2a40 !important; }
-[data-baseweb="popover"] li {
-    background: #12121e !important;
-    color: #e8e8ff !important; }
+[data-baseweb="popover"] ul { background: #12121e !important; border: 1px solid #2a2a40 !important; }
+[data-baseweb="popover"] li { background: #12121e !important; color: #e8e8ff !important; }
 [data-baseweb="popover"] li:hover { background: #1e1e30 !important; }
-
-/* Hide the keyboard shortcut text completely */
 [data-testid="InputInstructions"] { display: none !important; }
 [data-baseweb="select"] input { caret-color: transparent !important; }
 div[data-baseweb="select"] [data-testid="stMarkdownContainer"] { display: none !important; }
-
-/* Style the selectbox label */
 [data-testid="stSelectbox"] label {
-    color: #7070b0 !important;
-    font-size: .85rem !important;
-    font-weight: 500 !important;
-    margin-bottom: 4px !important; }
+    color: #7070b0 !important; font-size: .85rem !important;
+    font-weight: 500 !important; margin-bottom: 4px !important; }
 
 .H   { font-family:'Syne',sans-serif; font-size:2.1rem; font-weight:800; color:#ffffff !important; letter-spacing:-0.02em; display:block; }
 .sub { font-size:.95rem; color:#7070b0 !important; margin-top:4px; display:block; }
@@ -141,10 +124,10 @@ with st.sidebar:
     st.markdown("<div style='font-size:.65rem;color:#303050;text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px;'>Navigation</div>", unsafe_allow_html=True)
 
     pages = {
-        "🏠  Overview":           "overview",
-        "📊  EDA":                "eda",
+        "🏠  Overview":            "overview",
+        "📊  EDA":                 "eda",
         "📍  Geographic Analysis": "geo",
-        "🤖  ML Classifier":      "ml",
+        "🤖  ML Classifier":       "ml",
     }
     if "page" not in st.session_state:
         st.session_state.page = "overview"
@@ -195,12 +178,14 @@ def fig_to_img(fig):
 # ══════════════════════════════════════════════════════════════════════════════
 if page == "overview":
     H("Riyadh Restaurant Explorer")
-    sub("Exploratory analysis of 5,000+ food & dining venues across Riyadh")
+    sub("Exploratory analysis of 11,000+ food & dining venues across Riyadh — Unit 3 Final Project")
     st.markdown("<br>", unsafe_allow_html=True)
 
     for col, val, label in zip(st.columns(5), [
-        f"{len(df):,}", f"{df['rating'].mean():.2f}",
-        f"{df['category'].nunique()}", f"{df['neighborhoods'].nunique()}",
+        f"{len(df):,}",
+        f"{df['rating'].mean():.2f}",
+        f"{df['category'].nunique()}",
+        f"{df['neighborhoods'].nunique()}",
         f"{int(df['price_level'].median())}",
     ], ["Total Venues", "Avg Rating", "Categories", "Neighborhoods", "Median Price Level"]):
         col.markdown(f'<div class="kpi"><div class="kv">{val}</div><div class="kl">{label}</div></div>',
@@ -213,28 +198,28 @@ if page == "overview":
     with c1:
         sec("Distribution of Restaurant Ratings")
         fig, ax = plt.subplots(figsize=(6, 4)); dax(ax, fig)
-        _ = sns.histplot(df["rating"], bins=20, kde=True, ax=ax, color=OR, alpha=0.8)
+        sns.histplot(df["rating"], bins=20, kde=True, ax=ax, color=OR, alpha=0.8)
         ax.axvline(df["rating"].mean(),   color="red",  linestyle="--", lw=1.8,
                    label=f"Mean: {df['rating'].mean():.2f}")
         ax.axvline(df["rating"].median(), color="blue", linestyle="-",  lw=1.8,
                    label=f"Median: {df['rating'].median():.2f}")
         leg = ax.legend(fontsize=9); leg.get_frame().set_facecolor(CARD)
-        _ = [t.set_color(TX) for t in leg.get_texts()]
+        [t.set_color(TX) for t in leg.get_texts()]
         ax.set_xlabel("Rating", fontsize=9); ax.set_ylabel("Count", fontsize=9)
         ax.set_title("Distribution of Restaurant Ratings", fontsize=10)
         st.image(fig_to_img(fig)); plt.close(fig)
-        ins("Most restaurants in Riyadh are rated between 7 and 9, with a mean of 7.82 and a median of 7.90, indicating a balanced distribution. Ratings below 6 are uncommon, suggesting the city's dining scene generally maintains above-average quality.")
+        ins("Ratings follow a tight bell curve centered between 7.5 and 8.5, with a mean of 7.82 and median of 7.90. Very few restaurants fall below 6.0, suggesting the city's dining scene consistently maintains above-average quality. The near-identical mean and median confirm a stable, symmetric distribution with no strong outlier pull.")
 
     with c2:
         sec("Distribution of Price Levels")
         fig, ax = plt.subplots(figsize=(6, 4)); dax(ax, fig)
         price_order = sorted(df["price_level"].dropna().unique())
-        _ = sns.countplot(x="price_level", data=df, ax=ax, order=price_order,
+        sns.countplot(x="price_level", data=df, ax=ax, order=price_order,
                       palette=[OR, CY, GR, YL, PK][:len(price_order)])
         ax.set_xlabel("Price Level", fontsize=9); ax.set_ylabel("Number of Restaurants", fontsize=9)
         ax.set_title("Distribution of Price Levels", fontsize=10)
         st.image(fig_to_img(fig)); plt.close(fig)
-        ins("Price level 1 ($) dominates with about 2,400 restaurants — nearly three times more than any other tier. Premium dining is rare: level 3 ($$$) has about 150 restaurants and level 4 ($$$$) is nearly absent. Riyadh's food scene is strongly skewed toward affordable dining.")
+        ins("Price level 1 ($) accounts for the vast majority of venues, making budget dining the dominant mode in Riyadh. Levels 3 and 4 together form a small fraction of all venues. A notable portion have no price data at all (level 0), which limits price-based analysis. The strong skew toward affordable options reflects the broad, everyday character of Riyadh's restaurant market.")
 
     st.divider()
     c1, c2 = st.columns(2)
@@ -244,24 +229,24 @@ if page == "overview":
         tc = df["category"].value_counts().head(10).reset_index()
         tc.columns = ["category", "count"]
         fig, ax = plt.subplots(figsize=(6, 4.5)); dax(ax, fig)
-        _ = sns.barplot(y="category", x="count", data=tc, ax=ax, palette=PAL[:10])
+        sns.barplot(y="category", x="count", data=tc, ax=ax, palette=PAL[:10])
         ax.set_xlabel("Count", fontsize=9); ax.set_ylabel("Category", fontsize=9)
         ax.set_title("Top 10 Restaurant Categories", fontsize=10)
         ax.tick_params(axis='y', labelsize=7)
         st.image(fig_to_img(fig)); plt.close(fig)
-        ins("Coffee Shop is the most common category with about 2,050 venues — more than three times the second-ranked Burger Joint (~640). The dominance of Coffee Shops highlights the strong café culture in Riyadh's food scene.")
+        ins("Coffee Shop is by far the most common category, outnumbering Burger Joint by more than three to one. This reflects a deeply embedded café culture where coffee shops serve as social hubs beyond just dining. Middle Eastern Restaurant and the generic Restaurant category both appear prominently, confirming the dominance of local cuisine.")
 
     with c2:
         sec("Top Neighborhoods by Restaurant Count")
         tn = df["neighborhoods"].value_counts().head(10).reset_index()
         tn.columns = ["neighborhoods", "count"]
         fig, ax = plt.subplots(figsize=(6, 4.5)); dax(ax, fig)
-        _ = sns.barplot(y="neighborhoods", x="count", data=tn, ax=ax, palette=PAL[:10])
+        sns.barplot(y="neighborhoods", x="count", data=tn, ax=ax, palette=PAL[:10])
         ax.set_xlabel("Number of Restaurants", fontsize=9); ax.set_ylabel("Neighborhood", fontsize=9)
         ax.set_title("Top Neighborhoods by Restaurant Count", fontsize=10)
         ax.tick_params(axis='y', labelsize=7)
         st.image(fig_to_img(fig)); plt.close(fig)
-        ins("Hiteen District has the highest concentration with about 365 restaurants, followed by Dhahrat Laban (~328) and Al Malqa (~315). Dining activity is heavily concentrated in the northern and northwestern districts of Riyadh.")
+        ins("The top 10 neighborhoods are all in Riyadh's northern and northwestern districts, with Hiteen, Dhahrat Laban, and Al Malqa leading in venue count. This geographic clustering aligns with the city's wealthier residential belts and newer commercial development — a pattern that holds consistently across the entire dataset.")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -281,12 +266,12 @@ elif page == "eda":
             tc = df["category"].value_counts().head(10).reset_index()
             tc.columns = ["category", "count"]
             fig, ax = plt.subplots(figsize=(6, 5)); dax(ax, fig)
-            _ = sns.barplot(y="category", x="count", data=tc, ax=ax, palette=PAL[:10])
+            sns.barplot(y="category", x="count", data=tc, ax=ax, palette=PAL[:10])
             ax.set_xlabel("Count", fontsize=9); ax.set_ylabel("Category", fontsize=9)
             ax.set_title("Top 10 Restaurant Categories", fontsize=10)
             ax.tick_params(axis='y', labelsize=7)
             st.image(fig_to_img(fig)); plt.close(fig)
-            ins("Coffee Shop leads at ~2,050 venues — more than 3× Burger Joint (~640). Restaurant and Middle Eastern Restaurant follow at ~460 and ~420.")
+            ins("Coffee Shop leads at ~2,050 venues — more than 3× Burger Joint (~640). Dessert shops, bakeries, and breakfast spots fill out the rest of the top 10, pointing to strong demand for casual daytime food experiences.")
 
         with c2:
             sec("Top Rated Restaurant Categories")
@@ -294,12 +279,12 @@ elif page == "eda":
                   .sort_values(ascending=False).head(10).reset_index())
             cr.columns = ["category", "rating"]
             fig, ax = plt.subplots(figsize=(6, 5)); dax(ax, fig)
-            _ = sns.barplot(y="category", x="rating", data=cr, ax=ax, palette=PAL[:10])
+            sns.barplot(y="category", x="rating", data=cr, ax=ax, palette=PAL[:10])
             ax.set_xlabel("Average Rating", fontsize=9); ax.set_ylabel("Category", fontsize=9)
             ax.set_title("Top Rated Restaurant Categories", fontsize=10)
             ax.tick_params(axis='y', labelsize=7)
             st.image(fig_to_img(fig)); plt.close(fig)
-            ins("The top-rated category is Restaurant & Juice Bar at ~9.4. All 10 top-rated categories are multi-tag combinations — venues offering more than one concept tend to rate higher. None of the most popular categories (Coffee Shop, Burger Joint) appear here, confirming popularity ≠ quality.")
+            ins("All 10 top-rated categories score between 9.0 and 9.4 — a very narrow range. Every entry is a niche or multi-concept venue. None of Riyadh's most common categories appear here, confirming that popularity and top-tier ratings do not overlap.")
 
     with tab2:
         c1, c2 = st.columns(2)
@@ -307,52 +292,52 @@ elif page == "eda":
             sec("Rating by Price Level")
             price_order = sorted(df["price_level"].dropna().unique())
             fig, ax = plt.subplots(figsize=(6, 4.5)); dax(ax, fig)
-            _ = sns.boxplot(x="price_level", y="rating", data=df, ax=ax,
+            sns.boxplot(x="price_level", y="rating", data=df, ax=ax,
                         order=price_order,
                         palette=[OR, CY, GR, YL, PK][:len(price_order)])
             ax.set_xlabel("Price Level", fontsize=9); ax.set_ylabel("Rating", fontsize=9)
             ax.set_title("Rating by Price Level", fontsize=10)
             st.image(fig_to_img(fig)); plt.close(fig)
-            ins("Price levels 0, 1, and 2 have nearly identical medians around 7.9–8.0. Level 3 ($$$) shows a slightly lower median near 7.7. Higher prices do not correspond to higher ratings — budget and mid-range restaurants achieve comparable customer satisfaction.")
+            ins("Ratings remain stable across price levels 1, 2, and 3, with medians hovering around 7.8–8.0 and near-identical interquartile ranges. Paying more does not reliably produce a better-rated experience. Budget and mid-range restaurants perform just as well as premium ones.")
 
         with c2:
             sec("Ratings Across Top Neighborhoods")
             top10_idx = df["neighborhoods"].value_counts().head(10).index
             fig, ax = plt.subplots(figsize=(6, 4.5)); dax(ax, fig)
-            _ = sns.boxplot(data=df[df["neighborhoods"].isin(top10_idx)],
+            sns.boxplot(data=df[df["neighborhoods"].isin(top10_idx)],
                         x="neighborhoods", y="rating", ax=ax, palette=PAL[:10])
             plt.xticks(rotation=45, ha="right", fontsize=7, color=TX)
             ax.set_xlabel("Neighborhood", fontsize=9); ax.set_ylabel("Rating", fontsize=9)
             ax.set_title("Ratings Across Top Neighborhoods", fontsize=10)
             st.image(fig_to_img(fig)); plt.close(fig)
-            ins("Al Qairawan and Al Malqa lead with medians at ~8.2. Al Yasmeen stands out with the widest spread and lowest outlier at ~4.7. Rating quality is fairly uniform across Riyadh regardless of location.")
+            ins("Rating quality is broadly consistent across neighborhoods, with most medians within a narrow 7.8–8.2 range. Al Yasmeen stands out with the widest spread and lowest outlier at ~4.7. Hiteen — the most restaurant-dense neighborhood — sits at a modest median of ~7.9, confirming volume does not drive quality.")
 
     with tab3:
         c1, c2 = st.columns(2)
         with c1:
             sec("Correlation Between Key Variables")
             fig, ax = plt.subplots(figsize=(6, 4.5)); dax(ax, fig)
-            _ = sns.heatmap(df[["rating","price_level","total_photos","total_ratings"]].corr(),
+            sns.heatmap(df[["rating","price_level","total_photos","total_ratings"]].corr(),
                         annot=True, cmap="coolwarm", ax=ax, fmt=".2f",
                         annot_kws={"size":10,"color":"white"}, linewidths=0.5, linecolor=GRID)
             ax.set_title("Correlation Between Key Variables", fontsize=10)
             ax.tick_params(labelsize=8, colors=TX)
             st.image(fig_to_img(fig)); plt.close(fig)
-            ins("Strongest relationship: total_photos ↔ total_ratings (0.61) — both reflect popularity. Rating shows weak positive correlations with photos (0.28) and ratings count (0.25). price_level has almost no correlation with any variable.")
+            ins("The strongest relationship is total_photos ↔ total_ratings (0.61) — both are signals of popularity rather than quality. Rating has only weak positive ties to photos and review count. price_level is virtually uncorrelated with every variable, confirming that price carries no meaningful signal about quality or engagement.")
 
         with c2:
-            sec("Top 5 Neighborhoods with the Greatest Food Variety")
+            sec("Top 5 Neighborhoods — Food Variety by Price Level")
             vt = (df.groupby(["neighborhoods","price_level"])["category"].nunique().unstack())
             if not vt.empty:
                 top5v = vt.sum(axis=1).sort_values(ascending=False).head(5).index
                 fig, ax = plt.subplots(figsize=(6, 4.5)); dax(ax, fig)
-                _ = sns.heatmap(vt.loc[top5v], cmap="YlOrRd", annot=True, fmt=".0f",
+                sns.heatmap(vt.loc[top5v], cmap="YlOrRd", annot=True, fmt=".0f",
                             ax=ax, linewidths=0.5, linecolor=GRID, annot_kws={"size":9})
                 ax.set_title("Top 5 Neighborhoods with the Greatest Food Variety", fontsize=9)
                 ax.set_xlabel("Price Level", fontsize=9); ax.set_ylabel("", fontsize=9)
                 ax.tick_params(labelsize=8, colors=TX)
                 st.image(fig_to_img(fig)); plt.close(fig)
-            ins("Al Malqa leads with 42 unique categories at price level 1. Price level 1 ($) is consistently the most diverse tier. Premium dining (level 3) offers minimal variety, maxing out at just 6 categories in Dhahrat Laban.")
+            ins("Al Malqa leads with 42 unique categories at price level 1 — the highest single cell in the heatmap. Price level 1 ($) is consistently the most diverse tier. Affordable dining in Riyadh is not only the most common option but also the widest in variety — premium dining is both rare and narrow.")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -364,6 +349,7 @@ elif page == "geo":
     st.markdown("<br>", unsafe_allow_html=True)
 
     sec("Restaurant Locations Across Riyadh")
+    df_map = df.dropna(subset=["longitude", "latitude"])
     try:
         import geopandas as gpd, os
         gp = "Saudi-Arabia-Regions-Cities-and-Districts/geojson"
@@ -375,20 +361,22 @@ elif page == "geo":
         fig.patch.set_facecolor(CARD); ax.set_facecolor("#0a0a14")
         riyadh.plot(ax=ax, color="#14142a", edgecolor="#4a4a6e", linewidth=1.2)
         districts_gdf.plot(ax=ax, facecolor="none", edgecolor="#2a2a44", linewidth=0.35)
-        ax.scatter(df["longitude"], df["latitude"], color=OR, s=6, alpha=0.35, zorder=3)
-        ax.set_xlim(df["longitude"].min()-.01, df["longitude"].max()+.01)
-        ax.set_ylim(df["latitude"].min() -.01, df["latitude"].max() +.01)
+        ax.scatter(df_map["longitude"], df_map["latitude"], color=OR, s=6, alpha=0.35, zorder=3)
+        ax.set_xlim(df_map["longitude"].min()-.01, df_map["longitude"].max()+.01)
+        ax.set_ylim(df_map["latitude"].min() -.01, df_map["latitude"].max() +.01)
         ax.set_xlabel("Longitude", fontsize=9, color=TX); ax.set_ylabel("Latitude", fontsize=9, color=TX)
         ax.set_title("Restaurant Locations Across Riyadh", fontsize=11, color=TX)
         ax.tick_params(labelsize=8, colors=TX)
         for sp in ax.spines.values(): sp.set_color(GRID)
     except Exception:
         fig, ax = plt.subplots(figsize=(10, 7)); dax(ax, fig)
-        ax.scatter(df["longitude"], df["latitude"], alpha=0.35, s=6, color=OR)
+        ax.scatter(df_map["longitude"], df_map["latitude"], alpha=0.35, s=6, color=OR)
+        ax.set_xlim(df_map["longitude"].min()-.01, df_map["longitude"].max()+.01)
+        ax.set_ylim(df_map["latitude"].min() -.01, df_map["latitude"].max() +.01)
         ax.set_xlabel("Longitude", fontsize=9); ax.set_ylabel("Latitude", fontsize=9)
         ax.set_title("Restaurant Locations Across Riyadh", fontsize=11)
     st.image(fig_to_img(fig)); plt.close(fig)
-    ins("The map overlay shows that restaurants are not evenly distributed across Riyadh. The highest concentration appears in the central and northern parts of the city, while the outer areas contain fewer locations. This reflects the concentration of commercial activity and population density.")
+    ins("Restaurants cluster heavily in Riyadh's central and northern corridors, forming dense bands around major commercial districts. The southern and outer edges show noticeably sparse coverage. This spatial pattern closely mirrors Riyadh's population density and infrastructure development, where most urban activity is anchored in the north.")
 
     st.divider()
     sec("Explore by Neighborhood")
@@ -399,9 +387,9 @@ elif page == "geo":
     nd = df[df["neighborhoods"] == selected]
 
     m1, m2, m3, m4 = st.columns(4)
-    m1.metric("Venues",       f"{len(nd):,}")
-    m2.metric("Avg Rating",   f"{nd['rating'].mean():.2f}")
-    m3.metric("Categories",   f"{nd['category'].nunique()}")
+    m1.metric("Venues",     f"{len(nd):,}")
+    m2.metric("Avg Rating", f"{nd['rating'].mean():.2f}")
+    m3.metric("Categories", f"{nd['category'].nunique()}")
     top_cat_name = nd["category"].value_counts().index[0] if len(nd) else "—"
     m4.markdown(
         f'''<div style="padding:8px 0;">
@@ -419,7 +407,7 @@ elif page == "geo":
         tc_n = nd["category"].value_counts().head(10).reset_index()
         tc_n.columns = ["category", "count"]
         fig, ax = plt.subplots(figsize=(6, 4.5)); dax(ax, fig)
-        _ = sns.barplot(y="category", x="count", data=tc_n, ax=ax, palette=PAL[:len(tc_n)])
+        sns.barplot(y="category", x="count", data=tc_n, ax=ax, palette=PAL[:len(tc_n)])
         ax.set_xlabel("Count", fontsize=9); ax.set_ylabel("", fontsize=9)
         ax.set_title(f"Top Categories in {selected}", fontsize=10)
         ax.tick_params(axis='y', labelsize=7)
@@ -428,13 +416,13 @@ elif page == "geo":
     with c2:
         sec(f"Rating Distribution in {selected}")
         fig, ax = plt.subplots(figsize=(6, 4.5)); dax(ax, fig)
-        _ = sns.histplot(nd["rating"], bins=15, kde=True, ax=ax, color=CY, alpha=0.8)
+        sns.histplot(nd["rating"], bins=15, kde=True, ax=ax, color=CY, alpha=0.8)
         ax.axvline(nd["rating"].mean(),   color="red",  linestyle="--", lw=1.5,
                    label=f"Mean: {nd['rating'].mean():.2f}")
         ax.axvline(nd["rating"].median(), color="blue", linestyle="-",  lw=1.5,
                    label=f"Median: {nd['rating'].median():.2f}")
         leg = ax.legend(fontsize=8); leg.get_frame().set_facecolor(CARD)
-        _ = [t.set_color(TX) for t in leg.get_texts()]
+        [t.set_color(TX) for t in leg.get_texts()]
         ax.set_xlabel("Rating", fontsize=9); ax.set_ylabel("Count", fontsize=9)
         ax.set_title(f"Rating Distribution in {selected}", fontsize=10)
         st.image(fig_to_img(fig)); plt.close(fig)
@@ -459,7 +447,7 @@ elif page == "geo":
     ax.set_xlabel("Neighborhood", fontsize=9); ax.set_ylabel("Rating", fontsize=9)
     ax.set_title("Ratings Across Top Neighborhoods", fontsize=10)
     st.image(fig_to_img(fig)); plt.close(fig)
-    ins("Al Qairawan and Al Malqa lead with the highest medians at ~8.2, while Tuwaiq and Qurtubah sit lowest at ~7.8. Al Yasmeen stands out with the widest spread and the lowest single outlier at ~4.7 — indicating highly inconsistent quality. Hiteen, despite being the most restaurant-dense neighborhood, sits at a modest median of ~7.9.")
+    ins("Rating quality is broadly consistent across Riyadh's top neighborhoods, with most medians within a narrow 7.8–8.2 range. Al Malqa and Al Qairawan edge slightly ahead, while Tuwaiq sits at the lower end. Al Yasmeen stands out for its unusually wide spread — high variance in dining quality despite an average median. Hiteen, the most restaurant-dense neighborhood, lands in the middle, confirming that volume does not drive quality.")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -467,7 +455,7 @@ elif page == "geo":
 # ══════════════════════════════════════════════════════════════════════════════
 elif page == "ml":
     H("ML — Price Level Classifier")
-    sub("Using supervised learning to predict whether a restaurant is budget, mid, or premium")
+    sub("Using supervised learning to predict whether a restaurant is budget, mid-range, or premium")
     st.markdown("<br>", unsafe_allow_html=True)
 
     sec("What Are We Trying to Do?")
@@ -477,7 +465,7 @@ elif page == "ml":
         <strong style='color:#ffffff;'>price level</strong> of a restaurant (1 = budget, 2 = mid-range, 3 = premium)
         based on features available in the dataset.<br><br>
         <strong style='color:#ff6b35;'>Why is this interesting?</strong> If we can predict price from ratings,
-        photos, and location — it means these features signal what kind of restaurant it is.
+        photos, and location — it means these features carry a signal about what kind of restaurant it is.
         If we <em>cannot</em>, it tells us something deeper: that pricing in Riyadh's food scene is
         driven by intangibles not captured in the data.<br><br>
         <strong style='color:#ff6b35;'>Approach:</strong> Three classifiers are trained and compared —
@@ -497,7 +485,7 @@ elif page == "ml":
             <div><span style='color:#ff6b35;font-weight:700;'>🎯 Task</span>
             <span style='color:#c0c0e0;'> — Multi-class · predict price level 1, 2, or 3</span></div>
             <div><span style='color:#ff6b35;font-weight:700;'>❌ Excluded</span>
-            <span style='color:#c0c0e0;'> — Price level 0 (unspecified) removed</span></div>
+            <span style='color:#c0c0e0;'> — Price level 0 (unspecified) removed from training</span></div>
             <div><span style='color:#ff6b35;font-weight:700;'>⚖️ Imbalance</span>
             <span style='color:#c0c0e0;'> — <code>class_weight="balanced"</code> on all models</span></div>
             <div><span style='color:#ff6b35;font-weight:700;'>✂️ Split</span>
@@ -520,7 +508,6 @@ elif page == "ml":
 
     st.divider()
 
-    # Train models (cached so it only runs once)
     @st.cache_data
     def train_models():
         feats  = ["rating","total_ratings","total_photos","total_tips","neighborhoods","category"]
@@ -538,8 +525,7 @@ elif page == "ml":
             "Decision Tree":       DecisionTreeClassifier(class_weight="balanced", random_state=42),
             "Logistic Regression": LogisticRegression(class_weight="balanced", max_iter=2000, solver="saga", random_state=42),
         }
-        preds = {}
-        accs  = {}
+        preds = {}; accs = {}
         for name, m in mdls.items():
             m.fit(X_tr, y_tr)
             yp = m.predict(X_te)
@@ -548,16 +534,13 @@ elif page == "ml":
 
         rf = mdls["Random Forest"]
         fi = pd.Series(rf.feature_importances_, index=feats).sort_values()
-        cm = confusion_matrix(y_te, preds["Random Forest"])
+        cm = confusion_matrix(y_te, preds["Random Forest"], labels=[1, 2, 3])
 
-        # Build per-class metrics manually — avoids key issues with classification_report
-        from collections import defaultdict
         reports = {}
         for name, yp in preds.items():
             rep = {}
             for cls in [1, 2, 3]:
-                mask_true = (y_te == cls)
-                mask_pred = (yp  == cls)
+                mask_true = (y_te == cls); mask_pred = (yp == cls)
                 tp = int(( mask_true &  mask_pred).sum())
                 fp = int((~mask_true &  mask_pred).sum())
                 fn = int(( mask_true & ~mask_pred).sum())
@@ -573,7 +556,6 @@ elif page == "ml":
     with st.spinner("Training models…"):
         reports, accs, feat_imp, cm, class_dist = train_models()
 
-    # Class distribution
     sec("Class Distribution")
     c1, c2 = st.columns([1, 1.6])
     with c1:
@@ -599,9 +581,9 @@ elif page == "ml":
     mc1, mc2, mc3 = st.columns(3)
     model_meta = [
         {"name":"Random Forest",      "badge":"bg","btxt":"Best Overall",  "accent":OR,  "col":mc1,
-         "note":"Strong on class 1 but largely ignores minority classes due to imbalance."},
+         "note":"Strongest on class 1 but largely ignores minority classes due to imbalance. Most reliable overall."},
         {"name":"Decision Tree",      "badge":"bo","btxt":"Most Balanced", "accent":CY,  "col":mc2,
-         "note":"Lower accuracy but attempts all classes. Better at predicting mid-range."},
+         "note":"Lower accuracy but attempts all three classes. Better at predicting mid-range venues."},
         {"name":"Logistic Regression","badge":"br","btxt":"Weakest",       "accent":PK,  "col":mc3,
          "note":"Features are not linearly separable. Converged poorly despite max_iter=2000."},
     ]
@@ -609,9 +591,9 @@ elif page == "ml":
         rep = reports[m["name"]]
         acc = f"{accs[m['name']]*100:.0f}%"
         label_map = {1: "Low (1)", 2: "Mid (2)", 3: "High (3)"}
-        rows = [(label_map[k], rep.get(k, rep.get(str(k), {})).get("precision", 0),
-                               rep.get(k, rep.get(str(k), {})).get("recall", 0),
-                               rep.get(k, rep.get(str(k), {})).get("f1-score", 0))
+        rows = [(label_map[k], rep.get(k, {}).get("precision", 0),
+                               rep.get(k, {}).get("recall", 0),
+                               rep.get(k, {}).get("f1-score", 0))
                 for k in [1, 2, 3]]
         rows_html = "".join([
             f"<tr style='border-bottom:1px solid #1a1a28;'>"
@@ -642,40 +624,33 @@ elif page == "ml":
     c1, c2 = st.columns(2)
 
     with c1:
-        sec("Confusion Matrix - Random Forest")
+        sec("Confusion Matrix — Random Forest")
         with mpl.rc_context({"text.usetex": False, "mathtext.default": "regular"}):
-            fig, ax = plt.subplots(figsize=(5, 4)); dax(ax, fig)
-            # Use a dark-friendly colormap starting from dark background
             from matplotlib.colors import LinearSegmentedColormap
-            dark_cmap = LinearSegmentedColormap.from_list(
-                "dark_blue", ["#0d0d12", "#1a2a4a", "#1e4080", OR], N=256
-            )
+            dark_cmap = LinearSegmentedColormap.from_list("dark_blue", ["#0d0d12", "#1a2a4a", "#1e4080", OR], N=256)
+            fig, ax = plt.subplots(figsize=(5, 4)); dax(ax, fig)
             disp = ConfusionMatrixDisplay(cm, display_labels=["Low", "Mid", "High"])
             disp.plot(ax=ax, colorbar=False, cmap=dark_cmap)
-            # Style all cell text white and bold
-            _ = [(text.set_color("white"), text.set_fontweight("bold"), text.set_fontsize(11)) for text in ax.texts]
-            ax.set_facecolor(CARD)
-            fig.patch.set_facecolor(CARD)
-            ax.set_title("Confusion Matrix - Random Forest", fontsize=10, color=TX)
+            [(text.set_color("white"), text.set_fontweight("bold"), text.set_fontsize(11)) for text in ax.texts]
+            ax.set_facecolor(CARD); fig.patch.set_facecolor(CARD)
+            ax.set_title("Confusion Matrix — Random Forest", fontsize=10, color=TX)
             ax.tick_params(colors=TX, labelsize=9)
-            ax.xaxis.label.set_color(TX)
-            ax.yaxis.label.set_color(TX)
-            _ = [tick.set_color(TX) for tick in ax.get_xticklabels() + ax.get_yticklabels()]
-            for sp in ax.spines.values():
-                sp.set_color(GRID)
+            ax.xaxis.label.set_color(TX); ax.yaxis.label.set_color(TX)
+            [tick.set_color(TX) for tick in ax.get_xticklabels() + ax.get_yticklabels()]
+            for sp in ax.spines.values(): sp.set_color(GRID)
         st.image(fig_to_img(fig)); plt.close(fig)
-        ins("The matrix confirms the model heavily predicts class 1. Most class 2 and 3 restaurants are misclassified as class 1.")
+        ins("The matrix confirms the model heavily predicts class 1. Most class 2 and 3 restaurants are misclassified as budget — a direct consequence of severe class imbalance and the near-zero correlation between price and available features.")
 
     with c2:
-        sec("Feature Importance — Random Forest Classifier")
+        sec("Feature Importance — Random Forest")
         fig, ax = plt.subplots(figsize=(6, 4)); dax(ax, fig)
-        _ = sns.barplot(y=feat_imp.index, x=feat_imp.values, ax=ax,
+        sns.barplot(y=feat_imp.index, x=feat_imp.values, ax=ax,
                     palette=[PAL[i % len(PAL)] for i in range(len(feat_imp))])
         ax.set_xlabel("Importance Score", fontsize=9)
         ax.set_title("Feature Importance — Random Forest Classifier", fontsize=10)
         ax.tick_params(axis='y', labelsize=8)
         st.image(fig_to_img(fig)); plt.close(fig)
-        ins("total_photos and neighborhoods contribute the most to predictions. Rating itself is a surprisingly weak predictor — consistent with the near-zero price↔rating correlation found in EDA.")
+        ins("total_photos and neighborhoods contribute the most to predictions. Rating is a surprisingly weak predictor — consistent with the near-zero price↔rating correlation found in EDA. The model is learning mostly from engagement volume and location, not quality signals.")
 
     st.divider()
     sec("Key Finding")
@@ -696,7 +671,7 @@ elif page == "ml":
             <div style='font-weight:700;color:#4ade80;margin-bottom:5px;'>✅ Best Model: Random Forest — 72%</div>
             <div style='font-size:.85rem;color:#2a6a3a;line-height:1.7;'>
                 Most reliable for identifying budget ($) restaurants.
-                Treat mid-range and premium predictions with caution — insufficient signal in the available features.
+                Treat mid-range and premium predictions with caution — there is insufficient signal in the available features to distinguish them reliably.
             </div>
         </div>
     </div>
@@ -707,6 +682,6 @@ elif page == "ml":
 st.markdown("<br><br>", unsafe_allow_html=True)
 st.markdown(
     "<div style='text-align:center;color:#1a1a2e;font-size:11px;padding:10px 0;'>"
-    "Unit 3 Final Project · Riyadh Restaurant EDA + ML · Data: Kaggle / Foursquare</div>",
+    "Unit 3 Final Project · Riyadh Restaurant EDA + ML · Abdulrahman Bajunaid · Tuwaiq Academy</div>",
     unsafe_allow_html=True
 )
