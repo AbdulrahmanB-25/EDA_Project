@@ -198,7 +198,7 @@ if page == "overview":
         ax.axvline(df["rating"].median(), color="blue", linestyle="-",  lw=1.8,
                    label=f"Median: {df['rating'].median():.2f}")
         _leg = ax.legend(fontsize=9); _leg.get_frame().set_facecolor(CARD)
-        [t.set_color(TX) for t in _leg.get_texts()]
+        for _t in _leg.get_texts(): _t.set_color(TX)
         ax.set_xlabel("Rating", fontsize=9); ax.set_ylabel("Count", fontsize=9)
         ax.set_title("Distribution of Restaurant Ratings", fontsize=10)
         st.image(fig_to_img(fig)); plt.close(fig)
@@ -424,7 +424,7 @@ elif page == "geo":
             ax.axvline(rated.median(), color="blue", linestyle="-",  lw=1.5,
                        label=f"Median: {rated.median():.2f}")
             _leg = ax.legend(fontsize=8); _leg.get_frame().set_facecolor(CARD)
-            [t.set_color(TX) for t in _leg.get_texts()]
+            for _t in _leg.get_texts(): _t.set_color(TX)
         ax.set_xlabel("Rating", fontsize=9); ax.set_ylabel("Count", fontsize=9)
         ax.set_title(f"Rating Distribution in {selected}", fontsize=10)
         st.image(fig_to_img(fig)); plt.close(fig)
