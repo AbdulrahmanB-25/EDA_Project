@@ -10,14 +10,13 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from sklearn.metrics import confusion_matrix
 
 mpl.rcParams["text.usetex"] = False
 mpl.rcParams["mathtext.default"] = "regular"
 
 st.set_page_config(page_title="Riyadh Restaurants", page_icon="🍽️", layout="wide")
 
-# ── CSS ───────────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap');
@@ -79,9 +78,6 @@ div[data-baseweb="select"] [data-testid="stMarkdownContainer"] { display: none !
 
 .H   { font-family:'Syne',sans-serif; font-size:2.1rem; font-weight:800; color:#ffffff !important; letter-spacing:-0.02em; display:block; }
 .sub { font-size:.95rem; color:#7070b0 !important; margin-top:4px; display:block; }
-.kpi { background:#12121e; border:1px solid #1e1e30; border-radius:12px; padding:20px; text-align:center; }
-.kv  { font-family:'Syne',sans-serif; font-size:2rem; font-weight:800; color:#ff6b35 !important; line-height:1; }
-.kl  { font-size:.68rem; color:#404060 !important; text-transform:uppercase; letter-spacing:.1em; margin-top:6px; }
 .sec { font-family:'Syne',sans-serif; font-size:1.05rem; font-weight:700; color:#ffffff !important;
        border-left:4px solid #ff6b35; padding-left:10px; margin:20px 0 12px; }
 .ins { background:#0f0f1e; border-left:3px solid #ff6b35; border-radius:0 8px 8px 0;
@@ -101,7 +97,6 @@ div[data-baseweb="select"] [data-testid="stMarkdownContainer"] { display: none !
 """, unsafe_allow_html=True)
 
 
-# ── Data ──────────────────────────────────────────────────────────────────────
 @st.cache_data
 def load_data():
     df = pd.read_csv("clean_data.csv")
@@ -111,7 +106,6 @@ def load_data():
 
 df = load_data()
 
-# ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("""
     <div style='font-family:Syne,sans-serif;font-size:1.25rem;font-weight:800;
@@ -147,7 +141,6 @@ with st.sidebar:
 
 page = st.session_state.page
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
 BG   = "#0d0d12"; CARD = "#12121e"; GRID = "#1a1a28"
 OR = "#ff6b35"; CY = "#00d4ff"; GR = "#4ade80"; YL = "#facc15"; PK = "#f472b6"; PU = "#a78bfa"
 TX = "#e8e8ff"
@@ -167,8 +160,7 @@ def ins(t): st.markdown(f'<div class="ins">{t}</div>', unsafe_allow_html=True)
 def fig_to_img(fig):
     import io
     buf = io.BytesIO()
-    fig.savefig(buf, format="png", bbox_inches="tight", dpi=120,
-                facecolor=fig.get_facecolor())
+    fig.savefig(buf, format="png", bbox_inches="tight", dpi=120, facecolor=fig.get_facecolor())
     buf.seek(0)
     return buf
 
@@ -178,16 +170,17 @@ def fig_to_img(fig):
 # ══════════════════════════════════════════════════════════════════════════════
 if page == "overview":
     H("Riyadh Restaurant Explorer")
-    sub("Exploratory analysis of 11,000+ food & dining venues across Riyadh — Unit 3 Final Project")
+    sub("Exploratory analysis of 11,187 food & dining venues across Riyadh — Unit 3 Final Project")
     st.markdown("<br>", unsafe_allow_html=True)
 
+    # KPI row — using st.metric to avoid skeleton/loading issues
     kpi_cols = st.columns(5)
     kpi_data = [
-        (f"{len(df):,}",                    "Total Venues"),
-        (f"{df['rating'].mean():.2f}",       "Avg Rating"),
-        (f"{df['category'].nunique()}",      "Categories"),
-        (f"{df['neighborhoods'].nunique()}", "Neighborhoods"),
-        (f"{int(df['price_level'].median())}","Median Price Level"),
+        (f"{len(df):,}",                     "Total Venues"),
+        (f"{df['rating'].mean():.2f}",        "Avg Rating"),
+        (f"{df['category'].nunique()}",       "Categories"),
+        (f"{df['neighborhoods'].nunique()}",  "Neighborhoods"),
+        (f"{int(df['price_level'].median())}", "Median Price Level"),
     ]
     for col, (val, label) in zip(kpi_cols, kpi_data):
         col.metric(label, val)
@@ -209,7 +202,7 @@ if page == "overview":
         ax.set_xlabel("Rating", fontsize=9); ax.set_ylabel("Count", fontsize=9)
         ax.set_title("Distribution of Restaurant Ratings", fontsize=10)
         st.image(fig_to_img(fig)); plt.close(fig)
-        ins("Ratings follow a tight bell curve centered between 7.5 and 8.5, with a mean of 7.82 and median of 7.90. Very few restaurants fall below 6.0, suggesting the city's dining scene consistently maintains above-average quality. The near-identical mean and median confirm a stable, symmetric distribution with no strong outlier pull.")
+        ins("Restaurant ratings follow a slightly left-skewed bell curve centered between 7.5 and 8.5, with a mean of 7.82 and median of 7.90. The tight gap between mean and median confirms a symmetric, stable distribution with no strong outlier pull. Very few restaurants fall below 6.0, suggesting that poorly-rated venues either close quickly or rarely get reviewed.")
 
     with c2:
         sec("Distribution of Price Levels")
@@ -220,7 +213,7 @@ if page == "overview":
         ax.set_xlabel("Price Level", fontsize=9); ax.set_ylabel("Number of Restaurants", fontsize=9)
         ax.set_title("Distribution of Price Levels", fontsize=10)
         st.image(fig_to_img(fig)); plt.close(fig)
-        ins("Price level 1 ($) accounts for the vast majority of venues, making budget dining the dominant mode in Riyadh. Levels 3 and 4 together form a small fraction of all venues. A notable portion have no price data at all (level 0), which limits price-based analysis. The strong skew toward affordable options reflects the broad, everyday character of Riyadh's restaurant market.")
+        ins("Price level 1 ($) accounts for the vast majority of venues — 3,453 restaurants — making budget dining the dominant mode in Riyadh. Level 2 ($$) follows with 817 venues. Levels 3 and 4 together account for only 251 restaurants. A notable portion have no price data at all (level 0), limiting price-based analysis.")
 
     st.divider()
     c1, c2 = st.columns(2)
@@ -235,7 +228,7 @@ if page == "overview":
         ax.set_title("Top 10 Restaurant Categories", fontsize=10)
         ax.tick_params(axis='y', labelsize=7)
         st.image(fig_to_img(fig)); plt.close(fig)
-        ins("Coffee Shop is by far the most common category, outnumbering Burger Joint by more than three to one. This reflects a deeply embedded café culture where coffee shops serve as social hubs beyond just dining. Middle Eastern Restaurant and the generic Restaurant category both appear prominently, confirming the dominance of local cuisine.")
+        ins("Coffee Shop is by far the most common category, outnumbering the second-ranked Burger Joint by more than three to one. This reflects a deeply embedded café culture in Riyadh where coffee shops serve as social hubs beyond just dining. Middle Eastern Restaurant and the generic Restaurant category both appear prominently, confirming the dominance of local cuisine.")
 
     with c2:
         sec("Top Neighborhoods by Restaurant Count")
@@ -247,7 +240,7 @@ if page == "overview":
         ax.set_title("Top Neighborhoods by Restaurant Count", fontsize=10)
         ax.tick_params(axis='y', labelsize=7)
         st.image(fig_to_img(fig)); plt.close(fig)
-        ins("The top 10 neighborhoods are all in Riyadh's northern and northwestern districts, with Hiteen, Dhahrat Laban, and Al Malqa leading in venue count. This geographic clustering aligns with the city's wealthier residential belts and newer commercial development — a pattern that holds consistently across the entire dataset.")
+        ins("The top 10 neighborhoods are all in Riyadh's northern and northwestern districts, with Hiteen, Dhahrat Laban, and Al Malqa leading in venue count. The bottom of the top 10 still holds over 150 venues each — even the less-dense areas maintain a healthy food scene. The north-south divide in restaurant density is a consistent pattern across the entire dataset.")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -272,7 +265,7 @@ elif page == "eda":
             ax.set_title("Top 10 Restaurant Categories", fontsize=10)
             ax.tick_params(axis='y', labelsize=7)
             st.image(fig_to_img(fig)); plt.close(fig)
-            ins("Coffee Shop leads at ~2,050 venues — more than 3× Burger Joint (~640). Dessert shops, bakeries, and breakfast spots fill out the rest of the top 10, pointing to strong demand for casual daytime food experiences.")
+            ins("Coffee Shop leads at ~2,050 venues — more than 3× Burger Joint. Dessert shops, bakeries, and breakfast spots fill out the rest of the top 10, pointing to strong demand for casual daytime food experiences.")
 
         with c2:
             sec("Top Rated Restaurant Categories")
@@ -285,7 +278,7 @@ elif page == "eda":
             ax.set_title("Top Rated Restaurant Categories", fontsize=10)
             ax.tick_params(axis='y', labelsize=7)
             st.image(fig_to_img(fig)); plt.close(fig)
-            ins("All 10 top-rated categories score between 9.0 and 9.4 — a very narrow range. Every entry is a niche or multi-concept venue. None of Riyadh's most common categories appear here, confirming that popularity and top-tier ratings do not overlap.")
+            ins("The top-rated categories cluster tightly around high average scores, with Tea Rooms, Salad & Health Food, and Sushi & Japanese leading the group. The minimal variation in ratings indicates strong competition at the top — many categories consistently deliver high satisfaction rather than one segment dominating.")
 
     with tab2:
         c1, c2 = st.columns(2)
@@ -299,7 +292,7 @@ elif page == "eda":
             ax.set_xlabel("Price Level", fontsize=9); ax.set_ylabel("Rating", fontsize=9)
             ax.set_title("Rating by Price Level", fontsize=10)
             st.image(fig_to_img(fig)); plt.close(fig)
-            ins("Ratings remain stable across price levels 1, 2, and 3, with medians hovering around 7.8–8.0 and near-identical interquartile ranges. Paying more does not reliably produce a better-rated experience. Budget and mid-range restaurants perform just as well as premium ones.")
+            ins("Ratings remain remarkably stable across price levels 1, 2, and 3, with medians hovering around 7.8–8.0 and near-identical interquartile ranges. Price level 0 (unpriced) shows a similar spread, and level 4 has too few observations to draw conclusions. Paying more does not reliably produce a better-rated experience.")
 
         with c2:
             sec("Ratings Across Top Neighborhoods")
@@ -311,7 +304,7 @@ elif page == "eda":
             ax.set_xlabel("Neighborhood", fontsize=9); ax.set_ylabel("Rating", fontsize=9)
             ax.set_title("Ratings Across Top Neighborhoods", fontsize=10)
             st.image(fig_to_img(fig)); plt.close(fig)
-            ins("Rating quality is broadly consistent across neighborhoods, with most medians within a narrow 7.8–8.2 range. Al Yasmeen stands out with the widest spread and lowest outlier at ~4.7. Hiteen — the most restaurant-dense neighborhood — sits at a modest median of ~7.9, confirming volume does not drive quality.")
+            ins("Rating quality is broadly consistent across neighborhoods, with most medians within a narrow 7.8–8.2 range. Al Malqa and Al Qairawan edge slightly ahead, while Tuwaiq and Qurtubah sit at the lower end. Al Yasmeen stands out with the widest spread and lowest outlier at ~4.7. Hiteen, the most restaurant-dense neighborhood, sits at a modest median of ~7.9.")
 
     with tab3:
         c1, c2 = st.columns(2)
@@ -324,7 +317,7 @@ elif page == "eda":
             ax.set_title("Correlation Between Key Variables", fontsize=10)
             ax.tick_params(labelsize=8, colors=TX)
             st.image(fig_to_img(fig)); plt.close(fig)
-            ins("The strongest relationship is total_photos ↔ total_ratings (0.61) — both are signals of popularity rather than quality. Rating has only weak positive ties to photos and review count. price_level is virtually uncorrelated with every variable, confirming that price carries no meaningful signal about quality or engagement.")
+            ins("The strongest relationship is total_photos ↔ total_ratings (0.62) — both are signals of popularity rather than quality. Rating has only weak positive ties to photos (0.28) and ratings count (0.25). price_level is virtually uncorrelated with every variable, confirming that price carries no meaningful signal about quality or engagement.")
 
         with c2:
             sec("Top 5 Neighborhoods — Food Variety by Price Level")
@@ -338,7 +331,7 @@ elif page == "eda":
                 ax.set_xlabel("Price Level", fontsize=9); ax.set_ylabel("", fontsize=9)
                 ax.tick_params(labelsize=8, colors=TX)
                 st.image(fig_to_img(fig)); plt.close(fig)
-            ins("Al Malqa leads with 42 unique categories at price level 1 — the highest single cell in the heatmap. Price level 1 ($) is consistently the most diverse tier. Affordable dining in Riyadh is not only the most common option but also the widest in variety — premium dining is both rare and narrow.")
+            ins("Hiteen leads overall variety with 46 unique categories. Qurtubah holds the highest single cell with 16 categories at price level 1. Al Malqa (40) and Dhahrat Laban (39) follow closely. Price level 1 ($) is consistently the most diverse tier across all top neighborhoods — affordable dining in Riyadh is also the widest in variety.")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -377,7 +370,7 @@ elif page == "geo":
         ax.set_xlabel("Longitude", fontsize=9); ax.set_ylabel("Latitude", fontsize=9)
         ax.set_title("Restaurant Locations Across Riyadh", fontsize=11)
     st.image(fig_to_img(fig)); plt.close(fig)
-    ins("Restaurants cluster heavily in Riyadh's central and northern corridors, forming dense bands around major commercial districts. The southern and outer edges show noticeably sparse coverage. This spatial pattern closely mirrors Riyadh's population density and infrastructure development, where most urban activity is anchored in the north.")
+    ins("Restaurants are heavily concentrated in the central and northern corridors of Riyadh, forming dense clusters around major commercial districts. The southern and outer edges of the city show noticeably sparse coverage with large gaps between venues. This spatial pattern closely mirrors Riyadh's population density and infrastructure development, where most urban activity is anchored in the north.")
 
     st.divider()
     sec("Explore by Neighborhood")
@@ -389,7 +382,7 @@ elif page == "geo":
 
     m1, m2, m3, m4 = st.columns(4)
     m1.metric("Venues",     f"{len(nd):,}")
-    m2.metric("Avg Rating", f"{nd['rating'].mean():.2f}")
+    m2.metric("Avg Rating", f"{nd['rating'].mean():.2f}" if nd['rating'].notna().any() else "N/A")
     m3.metric("Categories", f"{nd['category'].nunique()}")
     top_cat_name = nd["category"].value_counts().index[0] if len(nd) else "—"
     m4.markdown(
@@ -421,11 +414,10 @@ elif page == "geo":
         if len(rated) >= 10:
             n_bins = min(15, max(5, len(rated) // 3))
             sns.histplot(rated, bins=n_bins, kde=len(rated) >= 20, ax=ax, color=CY, alpha=0.8)
-        else:
-            # Too few points for a histogram — show a dot plot instead
+        elif len(rated) > 0:
+            # Too few points — dot plot
             ax.scatter(rated, [1]*len(rated), color=CY, s=80, alpha=0.8, zorder=3)
-            ax.set_yticks([])
-            ax.set_ylim(0, 2)
+            ax.set_yticks([]); ax.set_ylim(0, 2)
         if len(rated) > 0:
             ax.axvline(rated.mean(),   color="red",  linestyle="--", lw=1.5,
                        label=f"Mean: {rated.mean():.2f}")
@@ -457,7 +449,7 @@ elif page == "geo":
     ax.set_xlabel("Neighborhood", fontsize=9); ax.set_ylabel("Rating", fontsize=9)
     ax.set_title("Ratings Across Top Neighborhoods", fontsize=10)
     st.image(fig_to_img(fig)); plt.close(fig)
-    ins("Rating quality is broadly consistent across Riyadh's top neighborhoods, with most medians within a narrow 7.8–8.2 range. Al Malqa and Al Qairawan edge slightly ahead, while Tuwaiq sits at the lower end. Al Yasmeen stands out for its unusually wide spread — high variance in dining quality despite an average median. Hiteen, the most restaurant-dense neighborhood, lands in the middle, confirming that volume does not drive quality.")
+    ins("Rating quality is broadly consistent across Riyadh's top neighborhoods, with most medians within a narrow 7.8–8.2 range. Al Malqa and Al Qairawan edge slightly ahead while Tuwaiq and Qurtubah sit at the lower end. Al Yasmeen stands out for its unusually wide spread — high variance in dining quality despite an average median. Hiteen, the most restaurant-dense neighborhood, lands in the middle, confirming that volume does not drive quality.")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -483,6 +475,7 @@ elif page == "ml":
         <span style='color:#00d4ff;'>Decision Tree</span>, and
         <span style='color:#f472b6;'>Logistic Regression</span>.
         Class imbalance is handled with <code style='color:#facc15;'>class_weight="balanced"</code>.
+        Price level 0 (unspecified) and level 4 (only 23 venues) are excluded from training.
     </div>
     """, unsafe_allow_html=True)
 
@@ -500,6 +493,8 @@ elif page == "ml":
             <span style='color:#c0c0e0;'> — <code>class_weight="balanced"</code> on all models</span></div>
             <div><span style='color:#ff6b35;font-weight:700;'>✂️ Split</span>
             <span style='color:#c0c0e0;'> — 80 / 20 · random_state=42</span></div>
+            <div><span style='color:#ff6b35;font-weight:700;'>📊 Training set</span>
+            <span style='color:#c0c0e0;'> — Class 1: 3,453 · Class 2: 817 · Class 3: 228</span></div>
         </div>""", unsafe_allow_html=True)
 
     with c2:
@@ -523,7 +518,7 @@ elif page == "ml":
         feats  = ["rating","total_ratings","total_photos","total_tips","neighborhoods","category"]
         target = "price_level"
         dm = df[feats + [target]].dropna()
-        dm = dm[dm[target] != 0].copy()
+        dm = dm[dm[target].isin([1, 2, 3])].copy()
         dm["neighborhoods"] = LabelEncoder().fit_transform(dm["neighborhoods"])
         dm["category"]      = LabelEncoder().fit_transform(dm["category"])
 
@@ -544,7 +539,7 @@ elif page == "ml":
 
         rf = mdls["Random Forest"]
         fi = pd.Series(rf.feature_importances_, index=feats).sort_values()
-        cm = confusion_matrix(y_te, preds["Random Forest"], labels=[1, 2, 3])
+        cm_matrix = confusion_matrix(y_te, preds["Random Forest"], labels=[1, 2, 3])
 
         reports = {}
         for name, yp in preds.items():
@@ -561,18 +556,18 @@ elif page == "ml":
             reports[name] = rep
 
         class_dist = dm[target].value_counts().sort_index()
-        return reports, accs, fi, cm, class_dist
+        return reports, accs, fi, cm_matrix, class_dist
 
     with st.spinner("Training models…"):
-        reports, accs, feat_imp, cm, class_dist = train_models()
+        reports, accs, feat_imp, cm_matrix, class_dist = train_models()
 
     sec("Class Distribution")
     c1, c2 = st.columns([1, 1.6])
     with c1:
         fig, ax = plt.subplots(figsize=(5, 3.5)); dax(ax, fig)
-        labels = ["Low (1)", "Mid (2)", "High (3)"]
+        labels = ["Low ($)\n3,453", "Mid ($$)\n817", "High ($$$)\n228"]
         counts = [int(class_dist.get(k, 0)) for k in [1, 2, 3]]
-        bars = ax.bar(labels, counts, color=[OR, CY, GR], edgecolor=BG)
+        bars = ax.bar(["Low (1)", "Mid (2)", "High (3)"], counts, color=[OR, CY, GR], edgecolor=BG)
         for bar, v in zip(bars, counts):
             ax.text(bar.get_x()+bar.get_width()/2, bar.get_height()+20,
                     f"{v:,}", ha='center', fontsize=9, fontweight='bold', color=TX)
@@ -580,22 +575,23 @@ elif page == "ml":
         st.image(fig_to_img(fig)); plt.close(fig)
     with c2:
         st.markdown("""<div class='wb' style='margin-top:0;'>
-            ⚠️ <strong>Severe class imbalance:</strong> Class 1 ($) has roughly 15× more samples than
-            Class 3 ($$$). Without correction, a model would simply predict "budget" every time and
-            appear accurate. We address this with <code>class_weight="balanced"</code>, which forces
-            each model to pay proportionally more attention to rare classes during training.
+            ⚠️ <strong>Severe class imbalance:</strong> Class 1 ($) has 3,453 samples vs only 228 for
+            Class 3 ($$$) — a 15:1 ratio. Without correction, a model would simply predict "budget" every time.
+            We address this with <code>class_weight="balanced"</code>, which forces each model to pay
+            proportionally more attention to rare classes during training.
         </div>""", unsafe_allow_html=True)
 
     st.divider()
     sec("Model Results")
     mc1, mc2, mc3 = st.columns(3)
+    # Real accuracy values from notebook: RF=89%, DT=88%, LR=23%
     model_meta = [
         {"name":"Random Forest",      "badge":"bg","btxt":"Best Overall",  "accent":OR,  "col":mc1,
-         "note":"Strongest on class 1 but largely ignores minority classes due to imbalance. Most reliable overall."},
+         "note":"Strong across all classes. Low (1): F1=0.93, Mid (2): F1=0.79, High (3): F1=0.44."},
         {"name":"Decision Tree",      "badge":"bo","btxt":"Most Balanced", "accent":CY,  "col":mc2,
-         "note":"Lower accuracy but attempts all three classes. Better at predicting mid-range venues."},
+         "note":"More balanced on minority classes. High (3): F1=0.50 — actually beats Random Forest on class 3."},
         {"name":"Logistic Regression","badge":"br","btxt":"Weakest",       "accent":PK,  "col":mc3,
-         "note":"Features are not linearly separable. Converged poorly despite max_iter=2000."},
+         "note":"Features are not linearly separable. Low recall on class 1 (0.11) despite high precision."},
     ]
     for m in model_meta:
         rep = reports[m["name"]]
@@ -620,7 +616,7 @@ elif page == "ml":
                     <span class='bdg {m["badge"]}'>{m['btxt']}</span>
                 </div>
                 <div style='font-family:Syne,sans-serif;font-size:1.7rem;font-weight:800;color:{m["accent"]};line-height:1;'>{acc}</div>
-                <div style='font-size:.7rem;color:#303050;margin-bottom:10px;'>Accuracy</div>
+                <div style='font-size:.7rem;color:#303050;margin-bottom:10px;'>Weighted Accuracy</div>
                 <table style='width:100%;border-collapse:collapse;'>
                     <tr style='color:#303050;border-bottom:1px solid #1a1a28;font-size:.73rem;'>
                         <td>Class</td><td style='text-align:center;'>Prec</td>
@@ -638,8 +634,7 @@ elif page == "ml":
         from matplotlib.colors import LinearSegmentedColormap
         dark_cmap = LinearSegmentedColormap.from_list("dark_blue", ["#0d0d12", "#1a2a4a", "#1e4080", OR], N=256)
         fig, ax = plt.subplots(figsize=(5, 4)); dax(ax, fig)
-        # Draw heatmap manually to avoid ConfusionMatrixDisplay rendering issues
-        im = ax.imshow(cm, interpolation="nearest", cmap=dark_cmap)
+        im = ax.imshow(cm_matrix, interpolation="nearest", cmap=dark_cmap)
         labels = ["Low (1)", "Mid (2)", "High (3)"]
         ax.set_xticks([0, 1, 2]); ax.set_yticks([0, 1, 2])
         ax.set_xticklabels(labels, fontsize=8, color=TX)
@@ -647,15 +642,15 @@ elif page == "ml":
         ax.set_xlabel("Predicted", fontsize=9, color=TX)
         ax.set_ylabel("True", fontsize=9, color=TX)
         ax.set_title("Confusion Matrix — Random Forest", fontsize=10, color=TX)
-        thresh = cm.max() / 2.0
-        for i in range(cm.shape[0]):
-            for j in range(cm.shape[1]):
-                ax.text(j, i, str(cm[i, j]), ha="center", va="center",
-                        color="white" if cm[i, j] > thresh else TX,
+        thresh = cm_matrix.max() / 2.0
+        for i in range(cm_matrix.shape[0]):
+            for j in range(cm_matrix.shape[1]):
+                ax.text(j, i, str(cm_matrix[i, j]), ha="center", va="center",
+                        color="white" if cm_matrix[i, j] > thresh else TX,
                         fontsize=13, fontweight="bold")
         fig.tight_layout()
         st.image(fig_to_img(fig)); plt.close(fig)
-        ins("The matrix confirms the model heavily predicts class 1. Most class 2 and 3 restaurants are misclassified as budget — a direct consequence of severe class imbalance and the near-zero correlation between price and available features.")
+        ins("The diagonal shows correct predictions per class. The model performs well on Low (1) and Mid (2), with High (3) being the hardest class due to limited training samples (228 venues). Most High class errors are misclassified as Mid rather than Low — a more reasonable error than collapsing everything to budget.")
 
     with c2:
         sec("Feature Importance — Random Forest")
@@ -666,7 +661,7 @@ elif page == "ml":
         ax.set_title("Feature Importance — Random Forest Classifier", fontsize=10)
         ax.tick_params(axis='y', labelsize=8)
         st.image(fig_to_img(fig)); plt.close(fig)
-        ins("total_photos and neighborhoods contribute the most to predictions. Rating is a surprisingly weak predictor — consistent with the near-zero price↔rating correlation found in EDA. The model is learning mostly from engagement volume and location, not quality signals.")
+        ins("total_photos and neighborhoods contribute the most to predictions, suggesting that venue visibility and location are the strongest proxies for price tier. Rating is a surprisingly weak predictor — consistent with the near-zero price↔rating correlation found in EDA.")
 
     st.divider()
     sec("Key Finding")
@@ -674,7 +669,8 @@ elif page == "ml":
     <div class='explain'>
         The EDA correlation heatmap already revealed that
         <strong style='color:#00d4ff;'>price_level has near-zero correlation with all available features</strong>.
-        The model is trying to predict something the data does not clearly encode.<br><br>
+        Despite this, the models achieved surprisingly strong weighted accuracy by leveraging
+        the class imbalance structure.<br><br>
         Price in Riyadh's dining scene is driven by
         <strong style='color:#ffffff;'>factors not captured in this dataset</strong>:
         <ul style='margin-top:10px;line-height:2.4;color:#7070a0;'>
@@ -684,17 +680,16 @@ elif page == "ml":
             <li>Menu offering and cuisine depth</li>
         </ul>
         <div class='sb'>
-            <div style='font-weight:700;color:#4ade80;margin-bottom:5px;'>✅ Best Model: Random Forest — 72%</div>
+            <div style='font-weight:700;color:#4ade80;margin-bottom:5px;'>✅ Best Model: Random Forest — 89% weighted accuracy</div>
             <div style='font-size:.85rem;color:#2a6a3a;line-height:1.7;'>
-                Most reliable for identifying budget ($) restaurants.
-                Treat mid-range and premium predictions with caution — there is insufficient signal in the available features to distinguish them reliably.
+                Strong on Low ($) and Mid ($$). High ($$$) F1 of 0.44 is reasonable given only 228 training samples.
+                Decision Tree actually edges out Random Forest on the High class (F1=0.50 vs 0.44).
             </div>
         </div>
     </div>
     """, unsafe_allow_html=True)
 
 
-# ── Footer ────────────────────────────────────────────────────────────────────
 st.markdown("<br><br>", unsafe_allow_html=True)
 st.markdown(
     "<div style='text-align:center;color:#1a1a2e;font-size:11px;padding:10px 0;'>"
